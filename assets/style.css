@@ -11,20 +11,20 @@
 }
 
 input {
-    outline: none !important;
+  outline: none !important;
 }
 
 .input-group input.form-control:focus {
-    outline: none !important;
-    box-shadow: 0 0 5px rgba(0, 255, 242, 0.5), 0 0 0 2px #007f61; /* Add a custom glow effect */
+  outline: none !important;
+  box-shadow: 0 0 5px rgba(0, 255, 242, 0.5), 0 0 0 2px #007f61; /* Add a custom glow effect */
 }
 
 a {
-    color: #007f61;
+  color: #007f61;
 }
 
 a:hover {
-    color: #004f41;
+  color: #004f41;
 }
 
 /* WELCOME */
@@ -81,32 +81,50 @@ a:hover {
 */
 }
 .forget {
-    font-size: 15px;    
+  font-size: 15px;
 }
 
-.input-icon {
-    border: none;
-    background-color: transparent;
+/* DASHBOARD */
+body {
+  overflow-x: hidden;
 }
 
-/* OWNER DASHBOARD */
-.wrapper {
+.sidebar {
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  background-color: #007f61;
+  padding-top: 1rem;
+
   display: flex;
-  width: 100%;
-  align-items: stretch;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-#sidebar {
-  min-width: 250px;
-  max-width: 250px;
-  min-height: 100vh;
-  /* ensuring the height for the sidebar is full display */
-  background: #007f61;
-  color: #fff;
-  transition: all 0.3s;
+.sidebar a {
+  color: #ffffff;
+  text-decoration: none;
+  display: block;
+  padding: 15px;
+  transition: 0.3s;
 }
 
-.sidebar-header img {
-  border-radius: 10px;
-  border-inline: 10px solid #007f61;
+.sidebar a:hover {
+  background-color: #004f41;
+}
+
+.content {
+  margin-left: 250px;
+  padding: 20px;
+}
+
+.sidebar-img-link:hover {
+  background-color: transparent !important;
+}
+
+.sidebar-img {
+  width: 150px;
+  margin-left: 30px;
 }
