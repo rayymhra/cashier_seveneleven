@@ -128,3 +128,13 @@ body {
   width: 150px;
   margin-left: 30px;
 }
+
+/* KELOLA USER */
+.register {
+  margin-left: 3rem;
+}
+
+.img-register img{
+  display: flex !important;
+  flex-direction: row-reverse !important;
+}

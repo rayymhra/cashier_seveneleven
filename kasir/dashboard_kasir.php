@@ -23,9 +23,7 @@ include "../koneksi.php";
     <div class="sidebar-page">
       <a href="dashboard.php" class="sidebar-img-link"><img src="../img/logo.png" alt="" class="sidebar-img"></a>
     
-    <a href="dashboard.php?page=kelola_user"><i class="bi bi-person-fill me-2"></i>Kelola User</a>
-    <a href="dashboard.php?page=kelola_barang"><i class="bi bi-box-seam me-2"></i>Kelola Barang</a>
-    <a href="dashboard.php?page=kelola_supplier"><i class="bi bi-truck me-2"></i>Kelola Supplier</a>
+    <a href="dashboard_kasir.php?page=kelola_transaksi"><i class="bi bi-person-fill me-2"></i>Kelola Transaksi</a>
     </div>
     
 
@@ -41,14 +39,8 @@ include "../koneksi.php";
 
       // Dynamically include PHP content based on the page parameter
       switch ($page) {
-        case 'kelola_user':
-          include 'kelola_user.php';
-          break;
-        case 'kelola_barang':
-          include 'kelola_barang.php';
-          break;
-        case 'kelola_supplier':
-          include 'kelola_supplier.php';
+        case 'kelola_transaksi':
+          include 'kelola_transaksi.php';
           break;
         default:
           echo "<h2>Welcome to the Dashboard</h2>";

@@ -1,7 +1,8 @@
 <?php
 include "koneksi.php";
+session_start();
 
-if(isset($_POST['submit'])){
+if (isset($_POST['submit'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
     $role = $_POST['role'];
@@ -9,17 +10,85 @@ if(isset($_POST['submit'])){
     $user = mysqli_query($conn, "SELECT * FROM user WHERE username ='$username'");
     $data = mysqli_fetch_assoc($user);
 
-    if ($user->num_rows > 0){
-        if (password_verify($password, $data['password'])) {
+    if ($user->num_rows > 0) {
+        if ($data && password_verify($password, $data['password'])) {
+            // var_dump($data);
+
             //pindah ke dashboard
-            header("Location:owner/dashboard.php");
-        } else{
+            //header("Location:owner/dashboard.php");
+
+            // nyimpen session data
+            $_SESSION['user_id'] = $data['id'];
+            $_SESSION['username'] = $data['username'];
+            $_SESSION['role'] = $data['jabatan'];
+
+            //redirect sesuai role nya
+            if ($data['jabatan'] == 'Owner') {
+                // header("Location: owner/dashboard.php");
+                echo "
+                <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Login Berhasil!',
+                    text: 'Redirecting to owner dashboard...',
+                    confirmButtonColor: '#007f61'
+                }).then(function() {
+                    window.location.href = 'owner/dashboard.php';
+                });
+                </script>";
+            } elseif ($data['jabatan'] == 'Kasir') {
+                header("Location: kasir/dashboard_kasir.php");
+                // echo "
+                // <script>
+                // Swal.fire({
+                //     icon: 'success',
+                //     title: 'Login Berhasil!',
+                //     text: 'Redirecting to kasir page...',
+                //     confirmButtonColor: '#007f61'
+                // }).then(function() {
+                //     window.location.href = 'kasir/kelola_transaksi.php';
+                // });
+                // </script>";
+            } elseif ($data['jabatan'] == 'Gudang') {
+                // header("Location: gudang/dashboard_gudang.php");
+                echo "
+                <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Login Berhasil!',
+                    text: 'Redirecting to gudang dashboard...',
+                    confirmButtonColor: '#007f61'
+                }).then(function() {
+                    window.location.href = 'gudang/dashboard_gudang.php';
+                });
+                </script>";
+            }
+        } else {
             // password salah
-            echo"password salah";
+            // echo "password salah";
+            echo "
+            <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'passwordnya salah!',
+                text: 'coba lagi',
+                confirmButtonColor: '#007f61'
+            });
+            </script>";
         }
     } else {
         //tidak terdaftar
-        echo"tidak terdaftar";
+        // echo "tidak terdaftar";
+
+        echo "
+        <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'akun tidak terdaftar!',
+            text: 'coba periksa username atau role',
+            confirmButtonColor: '#007f61'
+        });
+        </script>";
     }
 }
 
@@ -36,6 +105,8 @@ if(isset($_POST['submit'])){
     <!-- bootstrap icon -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="assets/style.css">
+    <!-- sweetalert -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
 </head>
 
@@ -101,6 +172,9 @@ if(isset($_POST['submit'])){
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="assets/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 </body>
 
 </html>

@@ -2,7 +2,7 @@
 include "../koneksi.php";
 $successMessage = '';
 
-if(isset($_POST['submit'])){
+if (isset($_POST['submit'])) {
     $name = $_POST['name'];
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -11,7 +11,7 @@ if(isset($_POST['submit'])){
 
     $enkripsi_password = password_hash($password, PASSWORD_DEFAULT);
 
-    if (mysqli_query($conn, "INSERT INTO user(nama, username, password, telepon, jabatan) VALUES ('$name', '$username', '$enkripsi_password', '$telp', '$role')")){
+    if (mysqli_query($conn, "INSERT INTO user(nama, username, password, telepon, jabatan) VALUES ('$name', '$username', '$enkripsi_password', '$telp', '$role')")) {
         $successMessage = "User created successfully!";
         header("Location: " . $_SERVER['PHP_SELF'] . "?success=1"); //Redirect to the same page to prevent form resubmission, then sweetalert
         exit;
@@ -33,6 +33,7 @@ if(isset($_POST['submit'])){
     <!-- bootstrap icon -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/style.css">
+    <!-- sweetalert -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
@@ -40,78 +41,77 @@ if(isset($_POST['submit'])){
     <div class="container-fluid">
         <div class="row">
             <div class="col-2">
-                
+
             </div>
             <div class="col-10">
 
             </div>
         </div>
     </div>
-    <div class="container shadow-lg rounded">
-        <div class="row">
-                <div class="col-7 login">
-                <img src="../img/logo text.png" alt="">
-                <h4>Kelola Akun</h4>
-                <p>Lorem ipsum dolor sit amet.</p>
+    <div class="container">
+        <h4>Kelola Akun</h4>
+        <p>Lorem ipsum dolor sit amet.</p>
 
-                <form action="" method="post">
+        <div class="register">
+            <form action="" method="post">
                 <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="name">
-                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <label class="form-label">Name</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="name">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="username">
+                        <span class="input-group-text"><i class="bi bi-person-circle"></i></span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="password" name="password">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    </div>
+                    <div class="password-footer">
+                        <div class="form-check mt-2">
+                            <input type="checkbox" class="form-check-input" id="show-password">
+                            <label class="form-check-label" for="show-password">
+                                Show Password
+                            </label>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="username">
-                            <span class="input-group-text"><i class="bi bi-person-circle"></i></span>
-                        </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Telephone</label>
+                    <div class="input-group" name="telp">
+                        <input type="text" class="form-control" name="telp">
+                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="password" name="password">
-                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        </div>
-                        <div class="password-footer">
-                            <div class="form-check mt-2">
-                                <input type="checkbox" class="form-check-input" id="show-password">
-                                <label class="form-check-label" for="show-password">
-                                    Show Password
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Telephone</label>
-                        <div class="input-group" name="telp">
-                            <input type="text" class="form-control" name="telp">
-                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Role</label>
-                        <select class="form-select" aria-label="Default select example" name="role">
-                            <option selected disabled>Select Your Role</option>
-                            <option value="Owner">Owner</option>
-                            <option value="Kasir">Kasir</option>
-                            <option value="Gudang">Gudang</option>
-                        </select>
-                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" aria-label="Default select example" name="role">
+                        <option selected disabled>Select Your Role</option>
+                        <option value="Owner">Owner</option>
+                        <option value="Kasir">Kasir</option>
+                        <option value="Gudang">Gudang</option>
+                    </select>
+                </div>
 
 
-                    <button type="submit" name="submit" class="btn btn-success mt-3">Add User</button>
+                <button type="submit" name="submit" class="btn btn-success mt-3">Add User</button>
 
-                </form>
+            </form>
+            <div class="img-register">
+                <img src="../img/logo text.png" alt="">
             </div>
-            <div class="col-5 contact rounded-end d-flex flex-column align-items-center justify-content-center text-center"><!-- flex column is arranges the children (image and heading) in a vertical column -->
-                <img src="../img/undraw_tasting_re_3k5a.svg" alt="" class="w-100">
-                <h5 class="mt-5 text-center">Login to get to our services</h5>
-                <p>Lorem, ipsum dolor sit amet consectetur adipisicing.</p>
-            </div>
+
         </div>
+
+    </div>
+    </div>
     </div>
 
 
