@@ -2,11 +2,25 @@
 include "koneksi.php";
 
 if(isset($_POST['submit'])){
-    $name = $_POST['name'];
     $username = $_POST['username'];
     $password = $_POST['password'];
-    $telp = $_POST['telp'];
     $role = $_POST['role'];
+
+    $user = mysqli_query($conn, "SELECT * FROM user WHERE username ='$username'");
+    $data = mysqli_fetch_assoc($user);
+
+    if ($user->num_rows > 0){
+        if (password_verify($password, $data['password'])) {
+            //pindah ke dashboard
+            header("Location:owner/dashboard.php");
+        } else{
+            // password salah
+            echo"password salah";
+        }
+    } else {
+        //tidak terdaftar
+        echo"tidak terdaftar";
+    }
 }
 
 ?>
@@ -70,7 +84,7 @@ if(isset($_POST['submit'])){
                     </div>
 
 
-                    <button type="submit" class="btn btn-success mt-3">Login</button>
+                    <button type="submit" class="btn btn-success mt-3" name="submit">Login</button>
 
                 </form>
             </div>
