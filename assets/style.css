@@ -130,11 +130,3 @@ body {
 }
 
 /* KELOLA USER */
-.register {
-  margin-left: 3rem;
-}
-
-.img-register img{
-  display: flex !important;
-  flex-direction: row-reverse !important;
-}

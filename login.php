@@ -22,73 +22,22 @@ if (isset($_POST['submit'])) {
             $_SESSION['username'] = $data['username'];
             $_SESSION['role'] = $data['jabatan'];
 
-            //redirect sesuai role nya
+            // Store the role for SweetAlert redirection
             if ($data['jabatan'] == 'Owner') {
-                // header("Location: owner/dashboard.php");
-                echo "
-                <script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Login Berhasil!',
-                    text: 'Redirecting to owner dashboard...',
-                    confirmButtonColor: '#007f61'
-                }).then(function() {
-                    window.location.href = 'owner/dashboard.php';
-                });
-                </script>";
+                $role_redirect = 'owner/dashboard.php';
+                $role_message = 'Redirecting to owner dashboard...';
             } elseif ($data['jabatan'] == 'Kasir') {
-                header("Location: kasir/dashboard_kasir.php");
-                // echo "
-                // <script>
-                // Swal.fire({
-                //     icon: 'success',
-                //     title: 'Login Berhasil!',
-                //     text: 'Redirecting to kasir page...',
-                //     confirmButtonColor: '#007f61'
-                // }).then(function() {
-                //     window.location.href = 'kasir/kelola_transaksi.php';
-                // });
-                // </script>";
+                $role_redirect = 'kasir/dashboard_kasir.php';
+                $role_message = 'Redirecting to kasir dashboard...';
             } elseif ($data['jabatan'] == 'Gudang') {
-                // header("Location: gudang/dashboard_gudang.php");
-                echo "
-                <script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Login Berhasil!',
-                    text: 'Redirecting to gudang dashboard...',
-                    confirmButtonColor: '#007f61'
-                }).then(function() {
-                    window.location.href = 'gudang/dashboard_gudang.php';
-                });
-                </script>";
+                $role_redirect = 'gudang/dashboard_gudang.php';
+                $role_message = 'Redirecting to gudang dashboard...';
             }
         } else {
-            // password salah
-            // echo "password salah";
-            echo "
-            <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'passwordnya salah!',
-                text: 'coba lagi',
-                confirmButtonColor: '#007f61'
-            });
-            </script>";
+            $error_message = 'Password salah! Coba lagi.';
         }
     } else {
-        //tidak terdaftar
-        // echo "tidak terdaftar";
-
-        echo "
-        <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'akun tidak terdaftar!',
-            text: 'coba periksa username atau role',
-            confirmButtonColor: '#007f61'
-        });
-        </script>";
+        $error_message = 'Akun tidak terdaftar! Periksa username atau role.';
     }
 }
 
@@ -107,6 +56,9 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" href="assets/style.css">
     <!-- sweetalert -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 </head>
 
@@ -173,6 +125,28 @@ if (isset($_POST['submit'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="assets/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <?php if (isset($role_redirect)) : ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Login Berhasil!',
+                text: '<?php echo $role_message; ?>',
+                confirmButtonColor: '#007f61'
+            }).then(function() {
+                window.location.href = '<?php echo $role_redirect; ?>';
+            });
+        </script>
+    <?php elseif (isset($error_message)) : ?>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '<?php echo $error_message; ?>',
+                confirmButtonColor: '#007f61'
+            });
+        </script>
+    <?php endif; ?>
 
 
 </body>

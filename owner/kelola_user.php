@@ -20,6 +20,8 @@ if (isset($_POST['submit'])) {
     }
 }
 
+// ngambil data users
+$users = mysqli_query($conn, "SELECT * FROM user");
 ?>
 
 <!doctype html>
@@ -35,6 +37,8 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" href="../assets/style.css">
     <!-- sweetalert -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- DataTables CSS for Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css">
 </head>
 
 <body>
@@ -49,6 +53,9 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
     <div class="container">
+        <div class="img-register">
+            <img src="../img/logo text.png" alt="">
+        </div>
         <h4>Kelola Akun</h4>
         <p>Lorem ipsum dolor sit amet.</p>
 
@@ -104,12 +111,39 @@ if (isset($_POST['submit'])) {
                 <button type="submit" name="submit" class="btn btn-success mt-3">Add User</button>
 
             </form>
-            <div class="img-register">
-                <img src="../img/logo text.png" alt="">
-            </div>
+
 
         </div>
 
+        <!-- Table displaying user data -->
+        <table id="userTable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Telephone</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                if (mysqli_num_rows($users) > 0) {
+                    $i = 1;
+                    while ($row = mysqli_fetch_assoc($users)) {
+                        echo "<tr>
+                                <td>" . $i++ . "</td>
+                                <td>" . $row['nama'] . "</td>
+                                <td>" . $row['username'] . "</td>
+                                <td>" . $row['telepon'] . "</td>
+                                <td>" . $row['jabatan'] . "</td>
+                            </tr>";
+                    }
+                }
+                ?>
+            </tbody>
+        </table>
+
     </div>
     </div>
     </div>
@@ -117,10 +151,25 @@ if (isset($_POST['submit'])) {
 
 
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="../assets/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- DataTables JS for Bootstrap 5 -->
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
+
+
     <script>
+        // Initialize DataTables with Bootstrap 5 styling
+        $(document).ready(function() {
+            $('#userTable').DataTable({
+                "pagingType": "simple_numbers", // Use simple pagination
+                "lengthMenu": [5, 10, 25, 50], // Options for showing records
+                "pageLength": 5, // Default number of records shown
+            });
+        });
+
         // Show SweetAlert after redirecting
         <?php if (isset($_GET['success'])): ?>
             Swal.fire({
@@ -131,6 +180,7 @@ if (isset($_POST['submit'])) {
             });
         <?php endif; ?>
     </script>
+
 </body>
 
 </html>
