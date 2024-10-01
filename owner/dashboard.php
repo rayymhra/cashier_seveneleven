@@ -30,7 +30,7 @@ include "../koneksi.php";
     
 
     <div class="logout">
-      <a href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+      <a href="../logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
     </div>
   </div>
 

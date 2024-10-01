@@ -124,6 +124,7 @@ $users = mysqli_query($conn, "SELECT * FROM user");
                     <th>Username</th>
                     <th>Telephone</th>
                     <th>Role</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -137,6 +138,10 @@ $users = mysqli_query($conn, "SELECT * FROM user");
                                 <td>" . $row['username'] . "</td>
                                 <td>" . $row['telepon'] . "</td>
                                 <td>" . $row['jabatan'] . "</td>
+                                <td>
+                            <a href='edit.php?id=" . $row['id'] . "' class='btn btn-warning'>Edit</a>
+                            <button class='btn btn-danger' onclick='confirmDelete(" . $row['id'] . ")'>Delete</button>
+                                </td>
                             </tr>";
                     }
                 }
@@ -177,6 +182,33 @@ $users = mysqli_query($conn, "SELECT * FROM user");
                 title: 'Success!',
                 text: 'User created successfully!',
                 confirmButtonText: 'Okeyyy'
+            });
+        <?php endif; ?>
+    </script>
+
+    <script>
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "delete.php?id=" + id; // Redirect to delete.php
+                }
+            })
+        }
+
+        // Show SweetAlert on successful delete
+        <?php if (isset($_GET['delete']) && $_GET['delete'] == 'success'): ?>
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'User has been deleted successfully.'
             });
         <?php endif; ?>
     </script>
