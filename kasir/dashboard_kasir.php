@@ -28,7 +28,7 @@ include "../koneksi.php";
     
 
     <div class="logout">
-      <a href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+      <a href="../logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
     </div>
   </div>
 
@@ -48,7 +48,6 @@ include "../koneksi.php";
       }
     } else {
       echo "<h2>Welcome to the Dashboard</h2>";
-      echo "<p>Select an option from the sidebar to manage users, products, or suppliers.</p>";
     }
     ?>
   </div>

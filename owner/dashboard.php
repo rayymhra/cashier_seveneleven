@@ -56,7 +56,6 @@ include "../koneksi.php";
       }
     } else {
       echo "<h2>Welcome to the Dashboard</h2>";
-      echo "<p>Select an option from the sidebar to manage users, products, or suppliers.</p>";
     }
     ?>
   </div>
