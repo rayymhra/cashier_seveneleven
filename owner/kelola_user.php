@@ -13,7 +13,7 @@ if (isset($_POST['submit'])) {
 
     if (mysqli_query($conn, "INSERT INTO user(nama, username, password, telepon, jabatan) VALUES ('$name', '$username', '$enkripsi_password', '$telp', '$role')")) {
         $successMessage = "User created successfully!";
-        header("Location: " . $_SERVER['PHP_SELF'] . "?success=1"); //Redirect to the same page to prevent form resubmission, then sweetalert
+        header("Location: dashboard.php?page=kelola_user&success=1"); //redirect to prevent form resubmission, then sweetalert
         exit;
     } else {
         echo "Error: " . mysqli_error($conn);
@@ -108,7 +108,7 @@ $users = mysqli_query($conn, "SELECT * FROM user");
                 </div>
 
 
-                <button type="submit" name="submit" class="btn btn-success mt-3">Add User</button>
+                <button type="submit" name="submit" class="btn btn-success mt-3 mb-5">Add User</button>
 
             </form>
 
@@ -139,8 +139,8 @@ $users = mysqli_query($conn, "SELECT * FROM user");
                                 <td>" . $row['telepon'] . "</td>
                                 <td>" . $row['jabatan'] . "</td>
                                 <td>
-                            <a href='edit.php?id=" . $row['id'] . "' class='btn btn-warning'>Edit</a>
-                            <button class='btn btn-danger' onclick='confirmDelete(" . $row['id'] . ")'>Delete</button>
+                            <a href='edit.php?id=" . $row['id'] . "' class='btn btn-success mb-1'>Edit</a>
+                            <button class='btn btn-success' onclick='confirmDelete(" . $row['id'] . ")'>Delete</button>
                                 </td>
                             </tr>";
                     }

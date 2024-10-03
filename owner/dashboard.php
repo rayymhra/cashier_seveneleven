@@ -22,12 +22,11 @@ include "../koneksi.php";
   <div class="sidebar">
     <div class="sidebar-page">
       <a href="dashboard.php" class="sidebar-img-link"><img src="../img/logo.png" alt="" class="sidebar-img"></a>
-    
-    <a href="dashboard.php?page=kelola_user"><i class="bi bi-person-fill me-2"></i>Kelola User</a>
-    <a href="dashboard.php?page=kelola_barang"><i class="bi bi-box-seam me-2"></i>Kelola Barang</a>
-    <a href="dashboard.php?page=kelola_supplier"><i class="bi bi-truck me-2"></i>Kelola Supplier</a>
+
+      <a href="dashboard.php?page=kelola_user"><i class="bi bi-person-fill me-2"></i>Kelola User</a>
+      <a href="dashboard.php?page=kelola_barang"><i class="bi bi-box-seam me-2"></i>Laporan Penjualan</a>
     </div>
-    
+
 
     <div class="logout">
       <a href="../logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
@@ -44,15 +43,11 @@ include "../koneksi.php";
         case 'kelola_user':
           include 'kelola_user.php';
           break;
-        case 'kelola_barang':
-          include 'kelola_barang.php';
-          break;
-        case 'kelola_supplier':
-          include 'kelola_supplier.php';
+        case 'reports':
+          include 'reports.php';
           break;
         default:
           echo "<h2>Welcome to the Dashboard</h2>";
-          echo "<p>Select an option from the sidebar to manage users, products, or suppliers.</p>";
       }
     } else {
       echo "<h2>Welcome to the Dashboard</h2>";
@@ -68,6 +63,17 @@ include "../koneksi.php";
   <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../assets/script.js"></script>
+  <script>
+    // Show SweetAlert after redirecting
+    <?php if (isset($_GET['success'])): ?>
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'User created successfully!',
+        confirmButtonText: 'Okeyyy'
+      });
+    <?php endif; ?>
+  </script>
 </body>
 
 </html>

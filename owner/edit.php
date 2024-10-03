@@ -35,7 +35,7 @@ if (isset($_POST['submit'])) {
     // Execute the update query
     if (mysqli_query($conn, $updateQuery)) {
         $successMessage = "User updated successfully!";
-        header("Location: dashboard.php?page=kelola_user?success=1");
+        header("Location: dashboard.php?page=kelola_user&success=1");
         exit;
     } else {
         $errorMessage = "Error: " . mysqli_error($conn);

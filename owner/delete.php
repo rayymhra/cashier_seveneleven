@@ -9,7 +9,7 @@ if (isset($_GET['id'])) {
     $deleteQuery = "DELETE FROM user WHERE id = $id";
     if (mysqli_query($conn, $deleteQuery)) {
         // Redirect back to the main page with a success message
-        header("Location: kelola_users.php?delete=success");
+        header("Location: dashboard.php?page=kelola_user&delete=success");
         exit;
     } else {
         // Error occurred
