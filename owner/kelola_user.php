@@ -53,7 +53,7 @@ $users = mysqli_query($conn, "SELECT * FROM user");
         </div>
     </div>
     <div class="container">
-        <div class="img-register">
+        <div class="img-register mb-4">
             <img src="../img/logo text.png" alt="">
         </div>
         <h4>Kelola Akun</h4>

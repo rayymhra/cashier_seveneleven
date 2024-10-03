@@ -24,7 +24,7 @@ include "../koneksi.php";
       <a href="dashboard.php" class="sidebar-img-link"><img src="../img/logo.png" alt="" class="sidebar-img"></a>
 
       <a href="dashboard.php?page=kelola_user"><i class="bi bi-person-fill me-2"></i>Kelola User</a>
-      <a href="dashboard.php?page=kelola_barang"><i class="bi bi-box-seam me-2"></i>Laporan Penjualan</a>
+      <a href="dashboard.php?page=reports"><i class="bi bi-box-seam me-2"></i>Laporan Penjualan</a>
     </div>
 
 
