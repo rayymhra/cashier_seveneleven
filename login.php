@@ -3,15 +3,15 @@ include "koneksi.php";
 session_start();
 
 if (isset($_POST['submit'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $role = $_POST['role'];
+    $username = $_POST['username']; //ngambil data dari name username
+    $password = $_POST['password']; //ngambil data dari name password
+    // $role = $_POST['role'];
 
     // $user = mysqli_query($conn, "SELECT * FROM user WHERE username ='$username'");
     // $data = mysqli_fetch_assoc($user);
 
     // username dan jabatan
-    $user = mysqli_query($conn, "SELECT * FROM user WHERE username ='$username' AND jabatan = '$role'");
+    $user = mysqli_query($conn, "SELECT * FROM user WHERE username ='$username'");
     $data = mysqli_fetch_assoc($user);
 
     if ($user->num_rows > 0) {
@@ -21,12 +21,12 @@ if (isset($_POST['submit'])) {
             //pindah ke dashboard
             //header("Location:owner/dashboard.php");
 
-            // nyimpen session data
+            // nyimpen data user id, username, role kedalam session
             $_SESSION['user_id'] = $data['id'];
             $_SESSION['username'] = $data['username'];
             $_SESSION['role'] = $data['jabatan'];
 
-            // Store the role for SweetAlert redirection
+            // redirect sesuai role
             if ($data['jabatan'] == 'Owner') {
                 $role_redirect = 'owner/dashboard.php';
                 $role_message = 'Redirecting to owner dashboard...';
@@ -41,7 +41,7 @@ if (isset($_POST['submit'])) {
             $error_message = 'Password salah! Coba lagi.';
         }
     } else {
-        $error_message = 'Akun tidak terdaftar! Periksa username atau role.';
+        $error_message = 'Akun tidak terdaftar! Pastikan username yang anda tulis benar';
     }
 }
 
@@ -100,7 +100,7 @@ if (isset($_POST['submit'])) {
                             </div>
                         </div>
                     </div>
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label class="form-label">Role</label>
                         <select class="form-select" aria-label="Default select example" name="role" required>
                             <option selected disabled>Select Your Role</option>
@@ -108,7 +108,7 @@ if (isset($_POST['submit'])) {
                             <option value="Kasir">Kasir</option>
                             <option value="Gudang">Gudang</option>
                         </select>
-                    </div>
+                    </div> -->
 
 
                     <button type="submit" class="btn btn-success mt-3" name="submit">Login</button>
@@ -138,7 +138,7 @@ if (isset($_POST['submit'])) {
                 text: '<?php echo $role_message; ?>',
                 confirmButtonColor: '#007f61'
             }).then(function() {
-                window.location.href = '<?php echo $role_redirect; ?>';
+                window.location.href = '<?php echo $role_redirect; ?>'; //redirect sesuai role
             });
         </script>
     <?php elseif (isset($error_message)) : ?>
