@@ -7,7 +7,11 @@ if (isset($_POST['submit'])) {
     $password = $_POST['password'];
     $role = $_POST['role'];
 
-    $user = mysqli_query($conn, "SELECT * FROM user WHERE username ='$username'");
+    // $user = mysqli_query($conn, "SELECT * FROM user WHERE username ='$username'");
+    // $data = mysqli_fetch_assoc($user);
+
+    // username dan jabatan
+    $user = mysqli_query($conn, "SELECT * FROM user WHERE username ='$username' AND jabatan = '$role'");
     $data = mysqli_fetch_assoc($user);
 
     if ($user->num_rows > 0) {
@@ -74,19 +78,19 @@ if (isset($_POST['submit'])) {
                     <div class="mb-3">
                         <label class="form-label">Username</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="username">
+                            <input type="text" class="form-control" name="username" required>
                             <span class="input-group-text"><i class="bi bi-person-circle"></i></span>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" id="password" name="password">
+                            <input type="password" class="form-control" id="password" name="password" required>
                             <span class="input-group-text"><i class="bi bi-lock"></i></span>
                         </div>
                         <div class="password-footer d-flex justify-content-between">
                             <div class="form-check mt-2">
-                                <input type="checkbox" class="form-check-input" id="show-password">
+                                <input type="checkbox" class="form-check-input" id="show-password"> <!-- checkbox liat password -->
                                 <label class="form-check-label" for="show-password">
                                     Show Password
                                 </label>
@@ -98,7 +102,7 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Role</label>
-                        <select class="form-select" aria-label="Default select example" name="role">
+                        <select class="form-select" aria-label="Default select example" name="role" required>
                             <option selected disabled>Select Your Role</option>
                             <option value="Owner">Owner</option>
                             <option value="Kasir">Kasir</option>

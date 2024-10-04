@@ -1,14 +1,14 @@
 <?php
 include "../koneksi.php";
 
-// Check if ID is provided via GET
+// cek apakah id ada
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    // Delete the user from the database
+    
     $deleteQuery = "DELETE FROM user WHERE id = $id";
     if (mysqli_query($conn, $deleteQuery)) {
-        // Redirect back to the main page with a success message
+        // redirect ke halaman awal dgn sweetalert
         header("Location: dashboard.php?page=kelola_user&delete=success");
         exit;
     } else {

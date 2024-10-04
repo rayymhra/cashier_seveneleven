@@ -9,7 +9,11 @@ if (isset($_POST['submit'])) {
   $stok = $_POST['stok'];
   $supplier_id = $_POST['supplier_id'];
 
-  mysqli_query($conn, "INSERT INTO barang(nama, harga, stok, supplier_id) VALUES('$nama', '$harga', '$stok', '$supplier_id')");
+  if (mysqli_query($conn, "INSERT INTO barang(nama, harga, stok, supplier_id) VALUES('$nama', '$harga', '$stok', '$supplier_id')")) {
+    $successMessage = "Product created successfully!";
+        header("Location: dashboard_gudang.php?page=kelola_barang&success=1"); //redirect to prevent form resubmission, then sweetalert
+        exit;
+  }
 }
 
 $sqlSupplier = $conn->query("SELECT id, nama FROM supplier");
@@ -95,8 +99,8 @@ $barangs = mysqli_query($conn, "SELECT * FROM barang");
                                 <td>" . $row['stok'] . "</td>
                                 <td>" . $row['supplier_id'] . "</td>
                                 <td>
-                            <a href='edit.php?id=" . $row['id'] . "' class='btn btn-warning'>Edit</a>
-                            <button class='btn btn-danger' onclick='confirmDelete(" . $row['id'] . ")'>Delete</button>
+                            <a href='edit_barang.php?id=" . $row['id'] . "' class='btn btn-success mb-1'>Edit</a>
+                            <button class='btn btn-success' onclick='confirmDelete(" . $row['id'] . ")'>Delete</button>
                                 </td>
                             </tr>";
           }
@@ -118,6 +122,9 @@ $barangs = mysqli_query($conn, "SELECT * FROM barang");
   <!-- DataTables JS for Bootstrap 5 -->
   <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
   <script src="../assets/script.js"></script>
   <script>
     // Initialize DataTables with Bootstrap 5 styling
@@ -152,19 +159,29 @@ $barangs = mysqli_query($conn, "SELECT * FROM barang");
         confirmButtonText: 'Yes, delete it!'
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = "delete.php?id=" + id; // Redirect to delete.php
+          window.location.href = "delete_barang.php?id=" + id; // redirect ke delete.php
         }
       })
     }
 
-    // Show SweetAlert on successful delete
+    // sweetalert
     <?php if (isset($_GET['delete']) && $_GET['delete'] == 'success'): ?>
       Swal.fire({
         icon: 'success',
         title: 'Deleted!',
-        text: 'User has been deleted successfully.'
+        text: 'Barang has been deleted successfully.'
       });
     <?php endif; ?>
+
+    // Show SweetAlert after redirecting
+    <?php if (isset($_GET['success'])): ?>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Barang created successfully!',
+                confirmButtonText: 'Okeyyy'
+            });
+        <?php endif; ?>
   </script>
 </body>
 
