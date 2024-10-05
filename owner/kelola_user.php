@@ -42,7 +42,7 @@ $users = mysqli_query($conn, "SELECT * FROM user");
 </head>
 
 <body>
-    <div class="container-fluid">
+    <!-- <div class="container-fluid">
         <div class="row">
             <div class="col-2">
 
@@ -51,7 +51,7 @@ $users = mysqli_query($conn, "SELECT * FROM user");
 
             </div>
         </div>
-    </div>
+    </div> -->
     <div class="container">
         <div class="img-register mb-4">
             <img src="../img/logo text.png" alt="">

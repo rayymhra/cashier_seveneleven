@@ -11,14 +11,16 @@ if (isset($_POST['submit'])) {
 
   if (mysqli_query($conn, "INSERT INTO barang(nama, harga, stok, supplier_id) VALUES('$nama', '$harga', '$stok', '$supplier_id')")) {
     $successMessage = "Product created successfully!";
-        header("Location: dashboard_gudang.php?page=kelola_barang&success=1"); //redirect to prevent form resubmission, then sweetalert
-        exit;
+    header("Location: dashboard_gudang.php?page=kelola_barang&success=1"); //redirect to prevent form resubmission, then sweetalert
+    exit;
   }
 }
 
 $sqlSupplier = $conn->query("SELECT id, nama FROM supplier");
 
-$barangs = mysqli_query($conn, "SELECT * FROM barang");
+// $barangs = mysqli_query($conn, "SELECT * FROM barang");
+$barangs = mysqli_query($conn, "SELECT barang.*, supplier.nama as supplier_name FROM barang JOIN supplier ON barang.supplier_id = supplier.id");
+
 ?>
 
 <!doctype html>
@@ -40,6 +42,9 @@ $barangs = mysqli_query($conn, "SELECT * FROM barang");
 
 <body>
   <div class="container">
+    <div class="img-register mb-4">
+      <img src="../img/logo text.png" alt="">
+    </div>
     <h3>Kelola Barang</h3>
     <form action="" method="post">
       <div class="mb-3">
@@ -75,44 +80,46 @@ $barangs = mysqli_query($conn, "SELECT * FROM barang");
     </form>
 
 
+    <!-- datatable -->
     <div class="mt-5">
       <table id="userTable" class="table table-striped table-bordered">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Product's Name</th>
-          <th>Price</th>
-          <th>Stock</th>
-          <th>Supplier</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php
-        if (mysqli_num_rows($barangs) > 0) {
-          $i = 1;
-          while ($row = mysqli_fetch_assoc($barangs)) {
-            echo "<tr>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Product's Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Supplier</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          if (mysqli_num_rows($barangs) > 0) {
+            $i = 1;
+            while ($row = mysqli_fetch_assoc($barangs)) {
+              echo "<tr>
                                 <td>" . $i++ . "</td>
                                 <td>" . $row['nama'] . "</td>
                                 <td>" . $row['harga'] . "</td>
                                 <td>" . $row['stok'] . "</td>
-                                <td>" . $row['supplier_id'] . "</td>
+                                <td>" . $row['supplier_name'] . "</td>
                                 <td>
-                            <a href='edit_barang.php?id=" . $row['id'] . "' class='btn btn-success mb-1'>Edit</a>
+                            <a href='dashboard_gudang.php?page=edit_barang&id=" . $row['id'] . "' class='btn btn-success mb-1'>Edit</a>
                             <button class='btn btn-success' onclick='confirmDelete(" . $row['id'] . ")'>Delete</button>
                                 </td>
                             </tr>";
+            }
           }
-        }
-        ?>
-      </tbody>
-    </table>
+          ?>
+        </tbody>
+      </table>
     </div>
-    
+
   </div>
 
 
+  <!-- jquery is needed for datatable dan harus ada di atas -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
@@ -175,13 +182,13 @@ $barangs = mysqli_query($conn, "SELECT * FROM barang");
 
     // Show SweetAlert after redirecting
     <?php if (isset($_GET['success'])): ?>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'Barang created successfully!',
-                confirmButtonText: 'Okeyyy'
-            });
-        <?php endif; ?>
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Barang created successfully!',
+        confirmButtonText: 'Okeyyy'
+      });
+    <?php endif; ?>
   </script>
 </body>
 

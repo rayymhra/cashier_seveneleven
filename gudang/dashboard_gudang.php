@@ -46,6 +46,12 @@ include "../koneksi.php";
                 case 'kelola_supplier':
                     include 'kelola_supplier.php';
                     break;
+                case 'edit_barang':
+                    include 'edit_barang.php';
+                    break;
+                case 'edit_supplier':
+                    include 'edit_supplier.php';
+                    break;
                 default:
                     echo "<h2>Welcome to the Dashboard</h2>";
             }

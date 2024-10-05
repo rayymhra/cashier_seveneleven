@@ -3,6 +3,8 @@ include "../koneksi.php";
 $successMessage = '';
 $errorMessage = '';
 
+
+
 // cek apakah ada id
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -12,34 +14,32 @@ if (isset($_GET['id'])) {
     if (mysqli_num_rows($query) > 0) {
         $barang = mysqli_fetch_assoc($query); // ngambil data barang
     } else {
-        $errorMessage = "User not found!";
+        $errorMessage = "Product not found!";
     }
 }
 
-// Handle form submission for updating user data
+
+$sql_barang = $conn->query("SELECT * FROM barang WHERE id = '$id'");
+$row_barang = mysqli_fetch_assoc($sql_barang);
+$sql_supplier = $conn->query("SELECT id, nama FROM supplier");
+
+
 if (isset($_POST['submit'])) {
-    $name = $_POST['name'];
+    $name = $_POST['nama'];
     $harga = $_POST['harga'];
     $stok = $_POST['stok'];
     $supplier_id = $_POST['supplier_id'];
 
-    // If password is empty, don't update the password
-    if (empty($password)) {
-        $updateQuery = "UPDATE user SET nama='$name', harga='$username', telepon='$telp', jabatan='$role' WHERE id=$id";
-    } else {
-        $enkripsi_password = password_hash($password, PASSWORD_DEFAULT);
-        $updateQuery = "UPDATE user SET nama='$name', username='$username', password='$enkripsi_password', telepon='$telp', jabatan='$role' WHERE id=$id";
-    }
-
     // Execute the update query
-    if (mysqli_query($conn, $updateQuery)) {
+    if (mysqli_query($conn, "UPDATE barang SET nama = '$name', harga='$harga', stok='$stok', supplier_id ='$supplier_id' WHERE id = '$id'")) {
         $successMessage = "User updated successfully!";
-        header("Location: dashboard.php?page=kelola_user&success=1");
+        header("Location: dashboard_gudang.php?page=kelola_barang&success=1");
         exit;
     } else {
         $errorMessage = "Error: " . mysqli_error($conn);
     }
 }
+
 ?>
 
 <!doctype html>
@@ -60,102 +60,31 @@ if (isset($_POST['submit'])) {
 </head>
 
 <body>
-
-    <div class="container">
-        <div class="img-register">
-            <img src="../img/logo text.png" alt="">
-        </div>
-        <h4>Edit User</h4>
-        <p>Edit user details below.</p>
-
-        <?php if (!empty($errorMessage)): ?>
-            <div class="alert alert-danger">
-                <?php echo $errorMessage; ?>
-            </div>
-        <?php endif; ?>
-
-        <div class="register">
-            <form action="" method="post">
-                <div class="mb-3">
-                    <label class="form-label">Name</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="name" value="<?php echo $user['nama']; ?>" required>
-                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="username" value="<?php echo $user['username']; ?>" required>
-                        <span class="input-group-text"><i class="bi bi-person-circle"></i></span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Password (Leave blank to keep the current password)</label>
-                    <div class="input-group">
-                        <input type="password" class="form-control" id="password" name="password">
-                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    </div>
-                    <div class="password-footer">
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="show-password">
-                            <label class="form-check-label" for="show-password">
-                                Show Password
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Telephone</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="telp" value="<?php echo $user['telepon']; ?>" required>
-                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Role</label>
-                    <select class="form-select" name="role" required>
-                        <option disabled>Select Your Role</option>
-                        <option value="Owner" <?php if ($user['jabatan'] == 'Owner') echo 'selected'; ?>>Owner</option>
-                        <option value="Kasir" <?php if ($user['jabatan'] == 'Kasir') echo 'selected'; ?>>Kasir</option>
-                        <option value="Gudang" <?php if ($user['jabatan'] == 'Gudang') echo 'selected'; ?>>Gudang</option>
-                    </select>
-                </div>
-
-                <button type="submit" name="submit" class="btn btn-success mt-3">Update User</button>
-
-            </form>
-        </div>
-    </div>
-
     <div class="container">
         <h3>Kelola Barang</h3>
         <form action="" method="post">
+            <input type="hidden" name="id" value="<?php echo $row_barang['id']; ?>">
             <div class="mb-3">
                 <label for="" class="input-group">Product's Name</label>
-                <input type="text" name="nama" class="form-control">
+                <input type="text" name="nama" class="form-control" value="<?php echo $row_barang['nama'] ?>">
             </div>
             <div class="mb-3">
                 <label for="">Price</label>
-                <input type="text" name="harga" class="form-control">
+                <input type="text" name="harga" class="form-control" value="<?php echo $row_barang['harga']?>">
             </div>
             <div class="mb-3">
                 <label for="">Stock</label>
-                <input type="text" name="stok" class="form-control">
+                <input type="text" name="stok" class="form-control" value="<?php echo $row_barang['stok']?>">
             </div>
             <div class="mb-3">
                 <label for="">Supplier</label>
-                <select name="supplier_id" id="" class="form-select">
-                    <option value="" disabled selected>Pilih Supplier</option>
-
-                    <?php
-                    while ($row = $sqlSupplier->fetch_assoc()) { ?>
-
-                        <option value="<?php echo $row['id']; ?>">
-                            <?php echo $row['nama'] ?>
+                <select class="form-control" name="supplier_id">
+                    <?php while ($row_supplier = mysqli_fetch_assoc($sql_supplier)): ?>
+                        <option value="<?php echo $row_supplier['id']; ?>"
+                            <?php echo $row_supplier['id'] == $row_barang['supplier_id'] ? 'selected' : ''; ?>>
+                            <?php echo $row_supplier['nama']; ?>
                         </option>
-
-                    <?php } ?>
+                    <?php endwhile; ?>
                 </select>
             </div>
             <button type="submit" name="submit" class="btn btn-success mt-3">Update User</button>
