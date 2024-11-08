@@ -1,5 +1,9 @@
 <?php
 include "../koneksi.php";
+
+// select kasir yg shift nya lagi open
+$sql_cashier_shift = "SELECT cashier_id, start_time, opening_balance FROM shifts WHERE is_open = 1";
+$cashier_shift = mysqli_query($conn, $sql_cashier_shift);
 ?>
 
 <!doctype html>
@@ -21,7 +25,7 @@ include "../koneksi.php";
 
   <div class="sidebar">
     <div class="sidebar-page">
-      <a href="dashboard.php" class="sidebar-img-link"><img src="../img/logo.png" alt="" class="sidebar-img"></a>
+      <a href="dashboard_kasir.php" class="sidebar-img-link"><img src="../img/logo.png" alt="" class="sidebar-img"></a>
     
     <a href="dashboard_kasir.php?page=kelola_transaksi"><i class="bi bi-person-fill me-2"></i>Kelola Transaksi</a>
     </div>
@@ -42,12 +46,30 @@ include "../koneksi.php";
         case 'kelola_transaksi':
           include 'kelola_transaksi.php';
           break;
-        default:
-          echo "<h2>Welcome to the Dashboard</h2>";
-          echo "<p>Select an option from the sidebar to manage users, products, or suppliers.</p>";
+        // default:
+        //   echo "<h2>Welcome to the Dashboard</h2>";
+        //   echo "<p>Select an option from the sidebar to manage users, products, or suppliers.</p>";
       }
     } else {
-      echo "<h2>Welcome to the Dashboard</h2>";
+      ?>
+      <h1>Dashboard Kasir</h1>
+      <div class="container">
+        <div class="row">
+          <?php foreach($cashier_shift as $cs)?>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-body">
+                <div class="h5">Shift</div>
+                <div class="h6">Open</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6"></div>
+        </div>
+      </div>
+      
+      
+      <?php
     }
     ?>
   </div>

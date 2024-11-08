@@ -31,8 +31,8 @@ if (isset($_POST['submit'])) {
                 $role_redirect = 'owner/dashboard.php';
                 $role_message = 'Redirecting to owner dashboard...';
             } elseif ($data['jabatan'] == 'Kasir') {
-                $role_redirect = 'kasir/dashboard_kasir.php';
-                $role_message = 'Redirecting to kasir dashboard...';
+                $role_redirect = 'shifts/shift_open.php';
+                $role_message = 'Redirecting to shift kasir...';
             } elseif ($data['jabatan'] == 'Gudang') {
                 $role_redirect = 'gudang/dashboard_gudang.php';
                 $role_message = 'Redirecting to gudang dashboard...';

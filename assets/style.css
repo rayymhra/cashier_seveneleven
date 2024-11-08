@@ -133,3 +133,8 @@ body {
 .img-register img {
   width: 130px ;
 }
+
+.form-shift {
+  padding-left: 8rem;
+  padding-right: 8rem;
+}
