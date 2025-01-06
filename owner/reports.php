@@ -1,92 +1,69 @@
 <?php
-include "../koneksi.php"; 
+// reports.php
+session_start();
+include '../koneksi.php';
 
-// kalo ada start date / end date maka akan ada di url, else null
-$startDate = isset($_GET['start_date']) ? $_GET['start_date'] : null; 
-$endDate = isset($_GET['end_date']) ? $_GET['end_date'] : null;
-
-
-
-$query = "SELECT b.nama as product_name, b.stok, SUM(td.jumlah) as total_sold, 
-            SUM(td.jumlah * td.harga_total) as total_sales
-          FROM barang b  -- tabel barang diberi nama b
-          LEFT JOIN detail_transaksi td ON b.id = td.barang_id
-          LEFT JOIN transaksi t ON td.transaksi_id = t.id";
-
-
-if ($startDate && $endDate) {
-    $query .= " WHERE t.transaction_date BETWEEN '$startDate' AND '$endDate'";
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
 }
 
-$query .= " GROUP BY p.id"; //mengelompokkan data berdasarkan ID produk
-// untuk menghitung total terjual dan total penjualan per produk
+$date_filter = $_GET['filter'] ?? 'daily'; // 'daily', 'weekly', 'monthly'
+$kasir_id = $_SESSION['user_id'];
+$filter_query = '';
 
-// execute query, simpen hasilnya di variable
+if ($date_filter === 'daily') {
+    $filter_query = "DATE(waktu_buka) = CURDATE()";
+} elseif ($date_filter === 'weekly') {
+    $filter_query = "YEARWEEK(waktu_buka) = YEARWEEK(CURDATE())";
+} elseif ($date_filter === 'monthly') {
+    $filter_query = "MONTH(waktu_buka) = MONTH(CURDATE()) AND YEAR(waktu_buka) = YEAR(CURDATE())";
+}
+
+$query = "SELECT * FROM shifts WHERE kasir_id = '$kasir_id' AND $filter_query";
 $result = mysqli_query($conn, $query);
-?>
 
-<!doctype html>
-<html lang="en">
+while ($row = mysqli_fetch_assoc($result)) {
+    echo "Shift ID: {$row['id']} - Balance Open: {$row['balance_buka']} - Balance Close: {$row['balance_tutup']}<br>";
+}
+
+?>
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sales Report</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Add your custom styles -->
-    <link rel="stylesheet" href="../assets/style.css">
+    <title>Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<div class="container mt-5">
-    <h3>Sales Report</h3>
-    
-    <!-- Filter form for date range -->
-    <form method="get" class="mb-4">
-        <div class="row">
-            <div class="col-md-4">
-                <input type="date" name="start_date" class="form-control" placeholder="Start Date" value="<?php echo $startDate; ?>">
-            </div>
-            <div class="col-md-4">
-                <input type="date" name="end_date" class="form-control" placeholder="End Date" value="<?php echo $endDate; ?>">
-            </div>
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-primary">Filter</button>
-            </div>
-        </div>
+<div class="container">
+    <h1>Reports</h1>
+    <form method="GET">
+        <select name="filter" onchange="this.form.submit()">
+            <option value="daily" <?= $filter == 'daily' ? 'selected' : '' ?>>Daily</option>
+            <option value="weekly" <?= $filter == 'weekly' ? 'selected' : '' ?>>Weekly</option>
+            <option value="monthly" <?= $filter == 'monthly' ? 'selected' : '' ?>>Monthly</option>
+        </select>
     </form>
-
-    <!-- Table to display sales data -->
-    <table class="table table-striped table-bordered">
-        <thead>
+    <table class="table table-bordered">
+        <tr>
+            <th>Cashier ID</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Opening Balance</th>
+            <th>Closing Balance</th>
+            <th>Discrepancy</th>
+        </tr>
+        <?php while ($row = mysqli_fetch_assoc($result)): ?>
             <tr>
-                <th>#</th>
-                <th>Product Name</th>
-                <th>Stock</th>
-                <th>Total Sold</th>
-                <th>Total Sales</th>
+                <td><?= $row['kasir_id'] ?></td>
+                <td><?= $row['waktu_buka'] ?></td>
+                <td><?= $row['waktu_tutup'] ?></td>
+                <td><?= $row['balance_buka'] ?></td>
+                <td><?= $row['balance_tutup'] ?></td>
+                <td><?= $row['balance_selisih'] ?></td>
             </tr>
-        </thead>
-        <tbody>
-            <?php
-            if (mysqli_num_rows($result) > 0) {
-                $i = 1;
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<tr>
-                            <td>{$i}</td>
-                            <td>{$row['product_name']}</td>
-                            <td>{$row['stok']}</td>
-                            <td>" . ($row['total_sold'] ?? 0) . "</td>
-                            <td>" . ($row['total_sales'] ? 'Rp ' . number_format($row['total_sales']) : 'Rp 0') . "</td>
-                          </tr>";
-                    $i++;
-                }
-            } else {
-                echo "<tr><td colspan='5'>No data available</td></tr>";
-            }
-            ?>
-        </tbody>
+        <?php endwhile; ?>
     </table>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

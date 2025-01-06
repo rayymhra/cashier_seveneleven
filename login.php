@@ -31,8 +31,19 @@ if (isset($_POST['submit'])) {
                 $role_redirect = 'owner/dashboard.php';
                 $role_message = 'Redirecting to owner dashboard...';
             } elseif ($data['jabatan'] == 'Kasir') {
-                $role_redirect = 'shifts/shift_open.php';
-                $role_message = 'Redirecting to shift kasir...';
+                // Check if the cashier has an active shift
+                $kasir_id = $data['id'];
+                $shift_query = "SELECT * FROM shifts WHERE kasir_id = '$kasir_id' AND buka = 1";
+                $result = mysqli_query($conn, $shift_query);
+                if (mysqli_num_rows($result) > 0) {
+                    // Active shift found, redirect to dashboard
+                    $role_redirect = 'kasir/dashboard_kasir.php';
+                    $role_message = 'Redirecting to kasir dashboard...';
+                } else {
+                    // No active shift, redirect to shift_open
+                    $role_redirect = 'shifts/shift_open.php';
+                    $role_message = 'Redirecting to shift opening page...';
+                }
             } elseif ($data['jabatan'] == 'Gudang') {
                 $role_redirect = 'gudang/dashboard_gudang.php';
                 $role_message = 'Redirecting to gudang dashboard...';
@@ -61,7 +72,7 @@ if (isset($_POST['submit'])) {
     <!-- sweetalert -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 </head>

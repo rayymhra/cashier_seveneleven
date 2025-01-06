@@ -1,6 +1,6 @@
 <?php
 include "../koneksi.php";
-session_start(); //simpen informasi siapa yg lagi login
+//session_start(); //simpen informasi siapa yg lagi login
 
 // cek apakah pengguna sudah login dan apakah perannya adalah kasir
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'Kasir') {
