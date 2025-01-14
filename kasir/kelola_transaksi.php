@@ -1,17 +1,21 @@
 <?php
 include "../koneksi.php";
-//session_start(); //simpen informasi siapa yg lagi login
 
-// cek apakah pengguna sudah login dan apakah perannya adalah kasir
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'Kasir') {
     header("Location: ../login.php");
     exit;
 }
 
+if (!isset($_SESSION['shift_id'])) {
+    die("Shift not started. Please start your shift before making transactions.");
+}
+
+
 //akan terexecute jika tombol complete transaksi ditekan
 if (isset($_POST['submit'])) {
     $tanggal = date('Y-m-d'); //ngambil tgl saat ini
     $user_id = $_SESSION['user_id']; //ngambil id yg lagi login
+    $shift_id = $_SESSION['shift_id'];
     $bayar = $_POST['bayar']; //ngambil jumlah uang yg dibayar
 
     // itung total harga
@@ -25,8 +29,8 @@ if (isset($_POST['submit'])) {
     $kembalian = $bayar - $total_harga; //itung kembalian
 
     // insert data ke tabel transaksi
-    $queryTransaksi = "INSERT INTO transaksi(tanggal, user_id, harga_total, bayar, kembalian) 
-                       VALUES('$tanggal', '$user_id', '$total_harga', '$bayar', '$kembalian')";
+    $queryTransaksi = "INSERT INTO transaksi(tanggal, user_id, harga_total, bayar, kembalian, shift_id) 
+                       VALUES('$tanggal', '$user_id', '$total_harga', '$bayar', '$kembalian', '$shift_id')";
     mysqli_query($conn, $queryTransaksi);
 
     $transaksi_id = mysqli_insert_id($conn); //ngambil id transaksi
@@ -193,7 +197,7 @@ if (isset($_POST['submit'])) {
             }
         });
 
-        // Update total price
+        // Update total harga
         function updateTotal() {
             let totalPrice = 0;
             document.querySelectorAll('#items-container .row').forEach(function(row) {
@@ -225,3 +229,4 @@ if (isset($_POST['submit'])) {
 </body>
 
 </html>
+

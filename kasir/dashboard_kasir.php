@@ -99,6 +99,32 @@ if ($active_shift) {
       </div>
     </div>
 
+    <!-- Modal -->
+<div class="modal fade" id="validateBalanceModal" tabindex="-1" aria-labelledby="validateBalanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="validateBalanceModalLabel">Validate Shift Balance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Opening Balance:</strong> <span id="openingBalance"></span></p>
+                <p><strong>Total Transactions:</strong> <span id="totalTransactions"></span></p>
+                <p><strong>Expected Closing Balance:</strong> <span id="expectedBalance"></span></p>
+                <form id="validateBalanceForm">
+                    <div class="mb-3">
+                        <label for="closingBalance" class="form-label">Actual Closing Balance</label>
+                        <input type="number" class="form-control" id="closingBalance" name="closingBalance" required>
+                    </div>
+                    <div class="alert alert-danger d-none" id="balanceError">The balance is not matching!</div>
+                    <button type="submit" class="btn btn-primary">Validate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <?php
     }
 ?>
@@ -111,6 +137,61 @@ if ($active_shift) {
 <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="../assets/script.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const modal = new bootstrap.Modal(document.getElementById("validateBalanceModal"));
+    const openingBalanceEl = document.getElementById("openingBalance");
+    const totalTransactionsEl = document.getElementById("totalTransactions");
+    const expectedBalanceEl = document.getElementById("expectedBalance");
+    const balanceError = document.getElementById("balanceError");
+    const validateBalanceForm = document.getElementById("validateBalanceForm");
+
+    // Open the modal when closing shift
+    document.getElementById("closeShiftButton").addEventListener("click", function () {
+        fetch("shift_close.php")
+            .then(response => response.json())
+            .then(data => {
+                openingBalanceEl.textContent = data.opening_balance;
+                totalTransactionsEl.textContent = data.total_transactions;
+                expectedBalanceEl.textContent = data.expected_balance;
+                modal.show();
+            });
+    });
+
+    // Handle form submission
+    validateBalanceForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const actualClosingBalance = parseFloat(document.getElementById("closingBalance").value);
+        const expectedBalance = parseFloat(expectedBalanceEl.textContent);
+
+        if (actualClosingBalance !== expectedBalance) {
+            balanceError.classList.remove("d-none");
+        } else {
+            balanceError.classList.add("d-none");
+            // Proceed to close the shift
+            fetch("shift_close.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    closingBalance: actualClosingBalance
+                })
+            }).then(response => {
+                if (response.ok) {
+                    modal.hide();
+                    alert("Shift closed successfully!");
+                    location.reload();
+                } else {
+                    alert("Failed to close shift. Please try again.");
+                }
+            });
+        }
+    });
+});
+</script>
 </body>
+
+
 
 </html>

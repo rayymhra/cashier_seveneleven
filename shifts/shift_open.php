@@ -11,8 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['open_shift'])) {
     $query = "INSERT INTO shifts (kasir_id, waktu_buka, balance_buka, buka) 
               VALUES ('$kasir_id', '$waktu_buka', '$balance_buka', 1)";
     if (mysqli_query($conn, $query)) {
-        echo "Shift opened successfully!";
-        header("Location: ../kasir/dashboard_kasir.php"); // Redirect to dashboard
+        // Get the newly created shift ID
+        $shift_id = mysqli_insert_id($conn);
+
+        // Save the shift ID in the session
+        $_SESSION['shift_id'] = $shift_id;
+
+        // Redirect to dashboard with success message
+        $_SESSION['success'] = "Shift opened successfully!";
+        header("Location: ../kasir/dashboard_kasir.php");
+        exit;
     } else {
         echo "Error: " . mysqli_error($conn);
     }
@@ -41,3 +49,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['open_shift'])) {
         <button type="submit" name="open_shift">Open Shift</button>
     </form>
 </body>
+

@@ -1,6 +1,6 @@
 <?php
 // Include database connection
-include "../koneksi.php";  // Assuming the connection file is in the parent directory
+include "../koneksi.php";
 
 session_start();
 
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$kasir_id = $_SESSION['user_id'];  // Get the current user's ID from the session
+$kasir_id = $_SESSION['user_id']; // Current user's ID
 
 // Fetch the current open shift for the cashier
 $query = "SELECT * FROM shifts WHERE kasir_id = '$kasir_id' AND buka = 1";
@@ -21,14 +21,22 @@ if (!$shift) {
     exit;
 }
 
+// Calculate total transactions for the current shift
+$shift_id = $shift['id'];
+$transaction_query = "SELECT SUM(harga_total) AS total_transactions 
+                      FROM transaksi 
+                      WHERE shift_id = '$shift_id'";
+$result = mysqli_fetch_assoc(mysqli_query($conn, $transaction_query));
+$total_transactions = $result['total_transactions'] ?? 0;
+
+// Calculate expected balance
+$expected_balance = $shift['balance_buka'] + $total_transactions;
+
 // Handle shift closing
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_shift'])) {
     $balance_tutup = intval($_POST['balance_tutup']);
     $waktu_tutup = date('Y-m-d H:i:s');
-
-    // Get balance_buka for the open shift
-    $balance_buka = $shift['balance_buka'];
-    $balance_selisih = $balance_tutup - $balance_buka;
+    $balance_selisih = $balance_tutup - $expected_balance;
 
     // Update shift to close it
     $update_query = "UPDATE shifts 
@@ -36,10 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_shift'])) {
                          balance_tutup = '$balance_tutup', 
                          balance_selisih = '$balance_selisih', 
                          buka = 0 
-                     WHERE id = '{$shift['id']}'";
+                     WHERE id = '$shift_id'";
     if (mysqli_query($conn, $update_query)) {
-        echo "Shift closed successfully!";
+        $_SESSION['success'] = "Shift closed successfully!";
         header("Location: ../login.php");
+        exit;
     } else {
         echo "Error: " . mysqli_error($conn);
     }
@@ -52,21 +61,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_shift'])) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Seven Eleven Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- bootstrap icon -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/style.css">
-    <!-- sweetalert -->
+    <title>Close Shift</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body>
-    <form method="POST" action="shift_close.php">
-        <label for="balance_tutup">Closing Balance:</label>
-        <input type="number" id="balance_tutup" name="balance_tutup" required>
-        <button type="submit" name="close_shift">Close Shift</button>
-    </form>
+    <div class="container mt-5">
+        <h3>Close Shift</h3>
+        <p><strong>Opening Balance:</strong> Rp. <?= number_format($shift['balance_buka'], 0, ',', '.') ?></p>
+        <p><strong>Total Transactions:</strong> Rp. <?= number_format($total_transactions, 0, ',', '.') ?></p>
+        <p><strong>Expected Balance:</strong> Rp. <?= number_format($expected_balance, 0, ',', '.') ?></p>
 
+
+        <form id="close-shift-form" method="POST" action="">
+    <div class="mb-3">
+        <label for="balance_tutup">Closing Balance:</label>
+        <input type="number" id="balance_tutup" name="balance_tutup" class="form-control" required>
+    </div>
+    <button type="button" id="validate-balance" class="btn btn-primary">Validate & Close Shift</button>
+    <!-- Hidden submit button for form submission -->
+    <button type="submit" name="close_shift" id="hidden-close-shift" style="display: none;"></button>
+</form>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('validate-balance').addEventListener('click', function () {
+            const expectedBalance = <?= $expected_balance ?>;
+            const closingBalance = parseInt(document.getElementById('balance_tutup').value);
+
+            if (isNaN(closingBalance)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please enter a valid closing balance.'
+                });
+                return;
+            }
+
+            if (closingBalance === expectedBalance) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Balance Matches',
+                    text: 'The balance matches the expected value. Do you want to proceed?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Close Shift',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('close-shift-form').submit();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Balance Mismatch',
+                    html: `The closing balance (Rp ${closingBalance.toLocaleString('id-ID')}) does not match the expected balance (Rp ${expectedBalance.toLocaleString('id-ID')}).Do you want to proceed?`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Proceed',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('close-shift-form').submit();
+                    }
+                });
+            }
+        });
+    </script>
+    
+
+    <script>
+        document.getElementById('validate-balance').addEventListener('click', function () {
+    const expectedBalance = <?= $expected_balance ?>;
+    const closingBalance = parseInt(document.getElementById('balance_tutup').value);
+
+    if (isNaN(closingBalance)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Please enter a valid closing balance.'
+        });
+        return;
+    }
+
+    if (closingBalance === expectedBalance) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Balance Matches',
+            text: 'The balance matches the expected value. Do you want to proceed?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Close Shift',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('hidden-close-shift').click(); // Trigger hidden submit button
+            }
+        });
+    } else {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Balance Mismatch',
+            html: `The closing balance (Rp ${closingBalance.toLocaleString('id-ID')}) does not match the expected balance (Rp ${expectedBalance.toLocaleString('id-ID')}).<br>Do you want to proceed?`,
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Proceed',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('hidden-close-shift').click(); // Trigger hidden submit button
+            }
+        });
+    }
+});
+
+    </script>
 </body>
+
 </html>
