@@ -89,7 +89,8 @@ if ($active_shift) {
 
         if ($active_shift) {
           // Shift is open
-          echo "<p>Shift is open. Balance: {$active_shift['balance_buka']}</p>";
+          // echo "<p>Shift is open. Balance: {$active_shift['balance_buka']}</p>";
+          echo "<p>Shift is open. Balance: Rp " . number_format($active_shift['balance_buka'], 0, ',', '.') . "</p>";
           echo '<a href="../shifts/shift_close.php">Close Shift</a>';
         } else {
           // Shift is closed

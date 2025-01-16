@@ -104,10 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_shift'])) {
             if (closingBalance === expectedBalance) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Balance Matches',
-                    text: 'The balance matches the expected value. Do you want to proceed?',
+                    title: 'Balance Sesuai',
+                    text: 'Balance nya sesuai, Lanjut Tutup Shift nya?',
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, Close Shift',
+                    confirmButtonText: 'Confirm',
                     cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -117,10 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_shift'])) {
             } else {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Balance Mismatch',
-                    html: `The closing balance (Rp ${closingBalance.toLocaleString('id-ID')}) does not match the expected balance (Rp ${expectedBalance.toLocaleString('id-ID')}).Do you want to proceed?`,
+                    title: 'Balance Tidak Sesuai',
+                    html: `Balance tutup nya (Rp ${closingBalance.toLocaleString('id-ID')}) Tidak sesuai dengan balance yang seharusnya yaitu: (Rp ${expectedBalance.toLocaleString('id-ID')}).Do you want to proceed?`,
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, Proceed',
+                    confirmButtonText: 'Confirm',
                     cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {

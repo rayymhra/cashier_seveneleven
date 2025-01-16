@@ -43,10 +43,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['open_shift'])) {
 </head>
 
 <body>
-    <form method="POST" action="shift_open.php">
-        <label for="balance_buka">Opening Balance:</label>
-        <input type="number" id="balance_buka" name="balance_buka" required>
-        <button type="submit" name="open_shift">Open Shift</button>
-    </form>
-</body>
+    <div class="container">
+        <div class="card open_shift_form">
+            <div class="card-body">
+                <form method="POST" action="shift_open.php">
+                    <h3 class="text-center">Mulai Shift</h3>
+                    <!-- <label for="balance_buka">Opening Balance:</label> -->
+                    <input type="number" id="balance_buka" name="balance_buka" required class="form-control" placeholder="Enter Balance">
+                    <button type="submit" name="open_shift" class="btn btn-success mt-3">Open Shift</button>
+                </form>
+            </div>
+        </div>
 
+    </div>
+
+</body>
