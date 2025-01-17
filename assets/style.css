@@ -139,3 +139,11 @@ body {
   padding-right: 8rem;
 }
 
+
+
+/* BUTTON PRINT */
+@media print {
+  .print-button {
+    display: none !important;
+  }
+}

@@ -94,7 +94,7 @@ if ($active_shift) {
           echo '<a href="../shifts/shift_close.php">Close Shift</a>';
         } else {
           // Shift is closed
-          echo '<a href="shift_open.php">Open Shift</a>';
+          echo '<a href="../shifts/shift_open.php">Open Shift</a>';
         }
         ?>
       </div>

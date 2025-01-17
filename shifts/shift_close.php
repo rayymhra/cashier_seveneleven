@@ -29,16 +29,19 @@ $transaction_query = "SELECT SUM(harga_total) AS total_transactions
 $result = mysqli_fetch_assoc(mysqli_query($conn, $transaction_query));
 $total_transactions = $result['total_transactions'] ?? 0;
 
-// Calculate expected balance
+// hitung balance yg seharusnya
 $expected_balance = $shift['balance_buka'] + $total_transactions;
 
-// Handle shift closing
+$transactions_query = "SELECT * FROM transaksi WHERE shift_id = '$shift_id'";
+$transactions_result = mysqli_query($conn, $transactions_query);
+
+// close shift
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_shift'])) {
     $balance_tutup = intval($_POST['balance_tutup']);
     $waktu_tutup = date('Y-m-d H:i:s');
     $balance_selisih = $balance_tutup - $expected_balance;
 
-    // Update shift to close it
+    // update table shift
     $update_query = "UPDATE shifts 
                      SET waktu_tutup = '$waktu_tutup', 
                          balance_tutup = '$balance_tutup', 
@@ -46,13 +49,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_shift'])) {
                          buka = 0 
                      WHERE id = '$shift_id'";
     if (mysqli_query($conn, $update_query)) {
-        $_SESSION['success'] = "Shift closed successfully!";
-        header("Location: ../login.php");
+        $_SESSION['receipt'] = [
+            'shift' => $shift,
+            'transactions' => mysqli_fetch_all($transactions_result, MYSQLI_ASSOC),
+            'total_transactions' => $total_transactions,
+            'balance_tutup' => $balance_tutup,
+            'balance_selisih' => $balance_selisih
+        ];
+        header("Location: ../kasir/struk.php");
         exit;
     } else {
         echo "Error: " . mysqli_error($conn);
     }
 }
+
+// var_dump($transactions_result);
 ?>
 
 <!doctype html>
@@ -68,27 +79,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_shift'])) {
 
 <body>
     <div class="container mt-5">
-        <h3>Close Shift</h3>
-        <p><strong>Opening Balance:</strong> Rp. <?= number_format($shift['balance_buka'], 0, ',', '.') ?></p>
-        <p><strong>Total Transactions:</strong> Rp. <?= number_format($total_transactions, 0, ',', '.') ?></p>
-        <p><strong>Expected Balance:</strong> Rp. <?= number_format($expected_balance, 0, ',', '.') ?></p>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="text-center">Close Shift</h3>
+                <p><strong>Opening Balance:</strong> Rp. <?= number_format($shift['balance_buka'], 0, ',', '.') ?></p>
+                <p><strong>Total Transactions:</strong> Rp. <?= number_format($total_transactions, 0, ',', '.') ?></p>
+                <p><strong>Expected Balance:</strong> Rp. <?= number_format($expected_balance, 0, ',', '.') ?></p>
 
 
-        <form id="close-shift-form" method="POST" action="">
-    <div class="mb-3">
-        <label for="balance_tutup">Closing Balance:</label>
-        <input type="number" id="balance_tutup" name="balance_tutup" class="form-control" required>
-    </div>
-    <button type="button" id="validate-balance" class="btn btn-primary">Validate & Close Shift</button>
-    <!-- Hidden submit button for form submission -->
-    <button type="submit" name="close_shift" id="hidden-close-shift" style="display: none;"></button>
-</form>
+                <form id="close-shift-form" method="POST" action="">
+                    <div class="mb-3">
+                        <label for="balance_tutup">Closing Balance:</label>
+                        <input type="number" id="balance_tutup" name="balance_tutup" class="form-control" required>
+                    </div>
+                    <button type="button" id="validate-balance" class="btn btn-success w-100">Validate & Close Shift</button>
+                    <button type="submit" name="close_shift" id="hidden-close-shift" style="display: none;"></button>
+                </form>
+            </div>
+        </div>
+
 
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.getElementById('validate-balance').addEventListener('click', function () {
+        document.getElementById('validate-balance').addEventListener('click', function() {
             const expectedBalance = <?= $expected_balance ?>;
             const closingBalance = parseInt(document.getElementById('balance_tutup').value);
 
@@ -130,51 +145,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['close_shift'])) {
             }
         });
     </script>
-    
+
 
     <script>
-        document.getElementById('validate-balance').addEventListener('click', function () {
-    const expectedBalance = <?= $expected_balance ?>;
-    const closingBalance = parseInt(document.getElementById('balance_tutup').value);
+        document.getElementById('validate-balance').addEventListener('click', function() {
+            const expectedBalance = <?= $expected_balance ?>;
+            const closingBalance = parseInt(document.getElementById('balance_tutup').value);
 
-    if (isNaN(closingBalance)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Please enter a valid closing balance.'
-        });
-        return;
-    }
+            if (isNaN(closingBalance)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please enter a valid closing balance.'
+                });
+                return;
+            }
 
-    if (closingBalance === expectedBalance) {
-        Swal.fire({
-            icon: 'success',
-            title: 'Balance Matches',
-            text: 'The balance matches the expected value. Do you want to proceed?',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, Close Shift',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('hidden-close-shift').click(); // Trigger hidden submit button
+            if (closingBalance === expectedBalance) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Balance Matches',
+                    text: 'The balance matches the expected value. Do you want to proceed?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Close Shift',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('hidden-close-shift').click(); // Trigger hidden submit button
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Balance Mismatch',
+                    html: `The closing balance (Rp ${closingBalance.toLocaleString('id-ID')}) does not match the expected balance (Rp ${expectedBalance.toLocaleString('id-ID')}).<br>Do you want to proceed?`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Proceed',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('hidden-close-shift').click(); // Trigger hidden submit button
+                    }
+                });
             }
         });
-    } else {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Balance Mismatch',
-            html: `The closing balance (Rp ${closingBalance.toLocaleString('id-ID')}) does not match the expected balance (Rp ${expectedBalance.toLocaleString('id-ID')}).<br>Do you want to proceed?`,
-            showCancelButton: true,
-            confirmButtonText: 'Yes, Proceed',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('hidden-close-shift').click(); // Trigger hidden submit button
-            }
-        });
-    }
-});
-
     </script>
 </body>
 
