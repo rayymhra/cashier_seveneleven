@@ -58,15 +58,18 @@ $balance_selisih = $receipt_data['balance_selisih'];
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>Transaction ID</th>
+                                    <th>No</th>
                                     <th>Date</th>
                                     <th>Total Price</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($transactions as $transaction): ?>
+                                <?php
+                                $no = 1;
+                                foreach ($transactions as $transaction):
+                                ?>
                                     <tr>
-                                        <td><?= $transaction['id'] ?></td>
+                                        <td><?= $no++; ?></td>
                                         <td><?= $transaction['tanggal'] ?></td>
                                         <td>Rp <?= number_format($transaction['harga_total'], 0, ',', '.') ?></td>
                                     </tr>
