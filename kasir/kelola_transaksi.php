@@ -56,7 +56,35 @@ if (isset($_POST['submit'])) {
     // Set success message in session
     $_SESSION['success'] = "Transaction successfully recorded!";
 
-    // Redirect to avoid form resubmission
+
+
+
+
+    // detail transaksi buat modal
+    $transactionDetails = [
+        'transaksi_id' => $transaksi_id,
+        'tanggal' => $tanggal,
+        'bayar' => $bayar,
+        'kembalian' => $kembalian,
+        'total_harga' => $total_harga,
+        'details' => [],
+    ];
+
+    foreach ($_POST['barang_id'] as $key => $barang_id) {
+        $queryProduct = "SELECT nama FROM barang WHERE id = '$barang_id'";
+        $resultProduct = mysqli_query($conn, $queryProduct);
+        $product = mysqli_fetch_assoc($resultProduct);
+
+        $transactionDetails['details'][] = [
+            'product_name' => $product['nama'],
+            'jumlah' => $_POST['jumlah'][$key],
+            'harga_total' => $_POST['jumlah'][$key] * $_POST['harga_total'][$key],
+        ];
+    }
+
+    // Pass transaction details to the front end
+    $_SESSION['transaction_details'] = $transactionDetails;
+
     header("Location: dashboard_kasir.php?page=kelola_transaksi&success=1");
     exit;
 }
@@ -131,25 +159,50 @@ if (isset($_POST['submit'])) {
         </form>
     </div>
 
+
+    <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transactionModalLabel">Transaction Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p style="display: none;"><strong>Transaction ID:</strong> <span id="modal-transaksi-id"></span></p>
+                    <p><strong>Tanggal:</strong> <span id="modal-tanggal"></span></p>
+                    <p><strong>Total Harga:</strong> Rp <span id="modal-total-harga"></span></p>
+                    <p><strong>Bayar:</strong> Rp <span id="modal-bayar"></span></p>
+                    <p><strong>Kembalian:</strong> Rp <span id="modal-kembalian"></span></p>
+                    <hr>
+                    <h5>Produk yang Dibeli:</h5>
+                    <ul id="modal-products"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === '1') {
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: 'Transaction successfully recorded!',
-        }).then(() => {
-            // Clear the URL parameters after the SweetAlert to prevent it from showing again
-            const newURL = window.location.href.split('?')[0];
-            window.history.pushState(null, null, newURL);
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === '1') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Transaction successfully recorded!',
+                }).then(() => {
+                    // Clear the URL parameters after the SweetAlert to prevent it from showing again
+                    const newURL = window.location.href.split('?')[0];
+                    window.history.pushState(null, null, newURL);
+                });
+            }
         });
-    }
-});
-
     </script>
 
     <script>
@@ -225,9 +278,41 @@ if (isset($_POST['submit'])) {
         checkRemoveButton();
     </script>
 
+    <!-- modal -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if transaction details are available
+            <?php if (isset($_SESSION['transaction_details'])): ?>
+                const transactionDetails = <?= json_encode($_SESSION['transaction_details']) ?>;
+
+                // Populate modal content
+                document.getElementById('modal-transaksi-id').textContent = transactionDetails.transaksi_id;
+                document.getElementById('modal-tanggal').textContent = transactionDetails.tanggal;
+                document.getElementById('modal-total-harga').textContent = new Intl.NumberFormat('id-ID').format(transactionDetails.total_harga);
+                document.getElementById('modal-bayar').textContent = new Intl.NumberFormat('id-ID').format(transactionDetails.bayar);
+                document.getElementById('modal-kembalian').textContent = new Intl.NumberFormat('id-ID').format(transactionDetails.kembalian);
+
+                // Populate products
+                const productsList = document.getElementById('modal-products');
+                productsList.innerHTML = ''; // Clear previous data
+                transactionDetails.details.forEach(product => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${product.product_name} - Jumlah: ${product.jumlah}, Total: Rp ${new Intl.NumberFormat('id-ID').format(product.harga_total)}`;
+                    productsList.appendChild(listItem);
+                });
+
+                // Show modal
+                const transactionModal = new bootstrap.Modal(document.getElementById('transactionModal'));
+                transactionModal.show();
+
+                // Clear session data after displaying the modal
+                <?php unset($_SESSION['transaction_details']); ?>
+            <?php endif; ?>
+        });
+    </script>
+
 
     <script src="../assets/script.js"></script>
 </body>
 
 </html>
-
