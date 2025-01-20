@@ -52,6 +52,7 @@ if ($active_shift) {
       <a href="dashboard_kasir.php" class="sidebar-img-link"><img src="../img/logo.png" alt="" class="sidebar-img"></a>
 
       <a href="dashboard_kasir.php?page=kelola_transaksi"><i class="bi bi-person-fill me-2"></i>Kelola Transaksi</a>
+      <a href="dashboard_kasir.php?page=transaction_history"><i class="bi bi-clock-history me-2"></i>Transaction History</a>
       <!-- <a href="dashboard_kasir.php?page=kelola_shift"><i class="bi bi-clock-history me-2"></i>Kelola Shift</a> -->
     </div>
 
@@ -69,6 +70,9 @@ if ($active_shift) {
       switch ($page) {
         case 'kelola_transaksi':
           include 'kelola_transaksi.php';
+          break;
+        case 'transaction_history':
+          include 'transaction_history.php';
           break;
           // default:
           //   echo "<h2>Welcome to the Dashboard</h2>";

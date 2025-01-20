@@ -127,6 +127,7 @@ if (isset($_POST['submit'])) {
             </div>
 
             <button type="submit" name="submit" class="btn btn-success">Complete Transaction</button>
+            <!-- munculin modal kaya struk gitu tiap transaksi -->
         </form>
     </div>
 

@@ -16,7 +16,7 @@ input {
 
 .input-group input.form-control:focus {
   outline: none !important;
-  box-shadow: 0 0 5px rgba(0, 255, 242, 0.5), 0 0 0 2px #007f61; /* Add a custom glow effect */
+  box-shadow: 0 0 5px rgba(0, 255, 242, 0.5), 0 0 0 2px #007f61; 
 }
 
 a {
@@ -146,4 +146,5 @@ body {
   .print-button {
     display: none !important;
   }
+
 }
