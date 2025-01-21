@@ -21,9 +21,9 @@ if (!$result) {
 $active_shift = mysqli_fetch_assoc($result);
 
 if ($active_shift) {
-  echo "<h3>Active Shift</h3>";
-  echo "<p>Start Time: " . $active_shift['waktu_buka'] . "</p>";
-  echo "<p>Opening Balance: " . $active_shift['balance_buka'] . "</p>";
+  // echo "<h3>Active Shift</h3>";
+  // echo "<p>Start Time: " . $active_shift['waktu_buka'] . "</p>";
+  // echo "<p>Opening Balance: " . $active_shift['balance_buka'] . "</p>";
 } else {
   echo "<p>No active shift found.</p>";
 }
@@ -45,13 +45,40 @@ $query_table = "SELECT t.id, t.tanggal, t.user_id, t.harga_total, t.bayar, t.kem
           LIMIT 5";
 $transactions = mysqli_query($conn, $query_table);
 
+
+
+// chart
+// $sql_transaksi_chart = "SELECT DATE(tanggal) as date, COUNT(*) as penjualan FROM transaksi GROUP BY DATE(tanggal)";
+// $result_transaksi_chart = mysqli_query($conn, $sql_transaksi_chart);
+// $data = [];
+// while ($row = $result_transaksi_chart->fetch_assoc()){
+//   array_push($data, $row);
+// }
+// echo json_encode($data);
+
+if (isset($_GET['chart_data'])) {
+  // Prepare data for chart
+  $sql_transaksi_chart = "SELECT DATE(tanggal) as date, COUNT(*) as penjualan FROM transaksi GROUP BY DATE(tanggal)";
+  $result_transaksi_chart = mysqli_query($conn, $sql_transaksi_chart);
+
+  $data = [];
+  while ($row = $result_transaksi_chart->fetch_assoc()) {
+      $data[] = $row;
+  }
+
+  // Set appropriate headers for JSON response
+  header('Content-Type: application/json');
+  echo json_encode($data);
+  exit; // Ensure no further output is sent
+}
+
 ?>
 
 <!doctype html>
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8">  
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Seven Eleven Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -127,7 +154,7 @@ $transactions = mysqli_query($conn, $query_table);
               <div class="card buka_shift-dashboard">
                 <div class="card-body">
                   <!-- <p>Shift is open</p> -->
-                   <h5 class="text-center shift-is-open">Shift is open</h5>
+                  <h5 class="text-center shift-is-open">Shift is open</h5>
                   <h6>Balance: <?= number_format($active_shift['balance_buka'], 0, ',', '.') ?></h6>
                   <a href="../shifts/shift_close.php" class="btn btn-success mt-3">Close Shift</a>
                 </div>
@@ -167,7 +194,7 @@ $transactions = mysqli_query($conn, $query_table);
         <!-- 5 transaksi terakhir -->
         <div class="card mt-4">
           <div class="card-body">
-            <h3>5 Transaksi Terakhir</h3>
+            <h3 class="text-center mb-4 mt-2">5 Transaksi Terakhir</h3>
             <table class="table">
               <thead>
                 <tr>
@@ -222,7 +249,19 @@ $transactions = mysqli_query($conn, $query_table);
         </div>
 
         <!-- chart keuntungan -->
-      </div>
+        <div class="card mt-5">
+          <h3 class="mt-3 text-center">Grafik Penjualan</h3>
+          <div class="card-body">
+            <div class="chart">
+              <canvas id="myChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+
+
+
+      </div> <!-- penutup container-->
   </div>
 
   <!-- Modal -->
@@ -256,6 +295,8 @@ $transactions = mysqli_query($conn, $query_table);
 ?>
 </div>
 
+<!-- chart js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <!-- Font Awesome JS -->
@@ -330,6 +371,11 @@ $transactions = mysqli_query($conn, $query_table);
       }
     });
   });
+</script>
+
+
+<!-- chart -->
+<script src="chart.js">
 </script>
 </body>
 
