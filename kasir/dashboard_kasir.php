@@ -28,6 +28,23 @@ if ($active_shift) {
   echo "<p>No active shift found.</p>";
 }
 
+$query_barang = "SELECT COUNT(*) AS jum_barang
+                  FROM barang";
+$result_barang = mysqli_query($conn, $query_barang);
+$barang = mysqli_fetch_assoc($result_barang)['jum_barang'] ?? 0;
+
+$query_transaksi = "SELECT COUNT(*) AS jum_transaksi
+                  FROM transaksi";
+$result_transaksi = mysqli_query($conn, $query_transaksi);
+$transaksi = mysqli_fetch_assoc($result_transaksi)['jum_transaksi'] ?? 0;
+
+
+$query_table = "SELECT t.id, t.tanggal, t.user_id, t.harga_total, t.bayar, t.kembalian, t.shift_id 
+          FROM transaksi t 
+          ORDER BY t.tanggal DESC
+          LIMIT 5";
+$transactions = mysqli_query($conn, $query_table);
+
 ?>
 
 <!doctype html>
@@ -43,6 +60,15 @@ if ($active_shift) {
   <link rel="stylesheet" href="../assets/style.css">
   <!-- sweetalert -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    .details-row {
+      display: none;
+    }
+
+    .toggle-details {
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
@@ -80,54 +106,149 @@ if ($active_shift) {
       }
     } else {
     ?>
-      <h1>Dashboard Kasir</h1>
+      <h1 class="ms-3">Dashboard Kasir</h1>
       <div class="container">
-        <?php
-        // Removed the extra session_start() call here.
-        $kasir_id = $_SESSION['user_id'];
+        <!-- total barang yg ada -->
+        <div class="row">
+          <div class="col-4">
+            <?php
+            // Removed the extra session_start() call here.
+            $kasir_id = $_SESSION['user_id'];
 
-        // Check shift status
-        $query = "SELECT * FROM shifts WHERE kasir_id = '$kasir_id' AND buka = 1";
-        $result = mysqli_query($conn, $query);
-        $active_shift = mysqli_fetch_assoc($result);
+            // Check shift status
+            $query = "SELECT * FROM shifts WHERE kasir_id = '$kasir_id' AND buka = 1";
+            $result = mysqli_query($conn, $query);
+            $active_shift = mysqli_fetch_assoc($result);
 
-        if ($active_shift) {
-          // Shift is open
-          // echo "<p>Shift is open. Balance: {$active_shift['balance_buka']}</p>";
-          echo "<p>Shift is open. Balance: Rp " . number_format($active_shift['balance_buka'], 0, ',', '.') . "</p>";
-          echo '<a href="../shifts/shift_close.php">Close Shift</a>';
-        } else {
-          // Shift is closed
-          echo '<a href="../shifts/shift_open.php">Open Shift</a>';
-        }
-        ?>
+            if ($active_shift) {
+              // Shift is open
+              // echo "<p>Shift is open. Balance: {$active_shift['balance_buka']}</p>";
+            ?>
+              <div class="card buka_shift-dashboard">
+                <div class="card-body">
+                  <!-- <p>Shift is open</p> -->
+                   <h5 class="text-center shift-is-open">Shift is open</h5>
+                  <h6>Balance: <?= number_format($active_shift['balance_buka'], 0, ',', '.') ?></h6>
+                  <a href="../shifts/shift_close.php" class="btn btn-success mt-3">Close Shift</a>
+                </div>
+              </div>
+
+              <!-- echo "<p>Shift is open. Balance: Rp " . number_format($active_shift['balance_buka'], 0, ',', '.') . "</p>";
+          echo '<a href="../shifts/shift_close.php">Close Shift</a>'; -->
+            <?php } else {
+              // Shift is closed
+              echo '<a href="../shifts/shift_open.php">Open Shift</a>';
+            }
+            ?>
+          </div>
+          <div class="col-4">
+            <div class="card mt-3">
+              <div class="card-header">
+                <div class="card-header">Jumlah Barang</div>
+              </div>
+              <div class="card-body">
+                <h5 class="jumlah-card-dashboard"><?= $barang ?></h5>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-4">
+            <div class="card mt-3">
+              <div class="card-header">
+                <div class="card-header">Jumlah Transaksi</div>
+              </div>
+              <div class="card-body">
+                <h5 class="jumlah-card-dashboard"><?= $transaksi ?></h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 transaksi terakhir -->
+        <div class="card mt-4">
+          <div class="card-body">
+            <h3>5 Transaksi Terakhir</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tanggal</th>
+                  <!-- <th>Kasir</th> -->
+                  <th>Total</th>
+                  <th>Bayar</th>
+                  <th>Kembalian</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php while ($transaction = mysqli_fetch_assoc($transactions)): ?>
+                  <tr>
+                    <td><?= $transaction['id'] ?></td>
+                    <td><?= $transaction['tanggal'] ?></td>
+                    <!-- <td><?= $transaction['user_id'] ?></td> -->
+                    <td>Rp. <?= number_format($transaction['harga_total'], 0, ',', '.') ?></td>
+                    <td>Rp. <?= number_format($transaction['bayar'], 0, ',', '.') ?></td>
+                    <td>Rp. <?= number_format($transaction['kembalian'], 0, ',', '.') ?></td>
+                    <td>
+                      <span class="badge bg-success toggle-details" data-id="<?= $transaction['id'] ?>">View</span>
+                    </td>
+                  </tr>
+                  <tr class="details-row" id="details-<?= $transaction['id'] ?>">
+                    <td colspan="7">
+                      <strong>Transaction Details:</strong>
+                      <ul>
+                        <?php
+                        $details_query = "
+                                                        SELECT dt.barang_id, dt.jumlah, dt.harga_total, b.nama AS barang_nama 
+                                                        FROM detail_transaksi dt 
+                                                        JOIN barang b ON dt.barang_id = b.id 
+                                                        WHERE dt.transaksi_id = " . $transaction['id'];
+                        $details_result = mysqli_query($conn, $details_query);
+                        while ($detail = mysqli_fetch_assoc($details_result)): ?>
+                          <li>
+                            Barang ID: <?= $detail['barang_id'] ?><br>
+                            Produk: <?= $detail['barang_nama'] ?><br>
+                            Jumlah: <?= $detail['jumlah'] ?><br>
+                            Total: Rp <?= number_format($detail['harga_total'], 0, ',', '.') ?>
+                          </li>
+                        <?php endwhile; ?>
+                      </ul>
+                    </td>
+                  </tr>
+                <?php endwhile; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- chart keuntungan -->
+      </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="validateBalanceModal" tabindex="-1" aria-labelledby="validateBalanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="validateBalanceModalLabel">Validate Shift Balance</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Opening Balance:</strong> <span id="openingBalance"></span></p>
+          <p><strong>Total Transactions:</strong> <span id="totalTransactions"></span></p>
+          <p><strong>Expected Closing Balance:</strong> <span id="expectedBalance"></span></p>
+          <form id="validateBalanceForm">
+            <div class="mb-3">
+              <label for="closingBalance" class="form-label">Actual Closing Balance</label>
+              <input type="number" class="form-control" id="closingBalance" name="closingBalance" required>
+            </div>
+            <div class="alert alert-danger d-none" id="balanceError">The balance is not matching!</div>
+            <button type="submit" class="btn btn-primary">Validate</button>
+          </form>
+        </div>
       </div>
     </div>
-
-    <!-- Modal -->
-<div class="modal fade" id="validateBalanceModal" tabindex="-1" aria-labelledby="validateBalanceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="validateBalanceModalLabel">Validate Shift Balance</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Opening Balance:</strong> <span id="openingBalance"></span></p>
-                <p><strong>Total Transactions:</strong> <span id="totalTransactions"></span></p>
-                <p><strong>Expected Closing Balance:</strong> <span id="expectedBalance"></span></p>
-                <form id="validateBalanceForm">
-                    <div class="mb-3">
-                        <label for="closingBalance" class="form-label">Actual Closing Balance</label>
-                        <input type="number" class="form-control" id="closingBalance" name="closingBalance" required>
-                    </div>
-                    <div class="alert alert-danger d-none" id="balanceError">The balance is not matching!</div>
-                    <button type="submit" class="btn btn-primary">Validate</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+  </div>
 
 
 <?php
@@ -143,7 +264,7 @@ if ($active_shift) {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="../assets/script.js"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function() {
     const modal = new bootstrap.Modal(document.getElementById("validateBalanceModal"));
     const openingBalanceEl = document.getElementById("openingBalance");
     const totalTransactionsEl = document.getElementById("totalTransactions");
@@ -152,48 +273,63 @@ if ($active_shift) {
     const validateBalanceForm = document.getElementById("validateBalanceForm");
 
     // Open the modal when closing shift
-    document.getElementById("closeShiftButton").addEventListener("click", function () {
-        fetch("shift_close.php")
-            .then(response => response.json())
-            .then(data => {
-                openingBalanceEl.textContent = data.opening_balance;
-                totalTransactionsEl.textContent = data.total_transactions;
-                expectedBalanceEl.textContent = data.expected_balance;
-                modal.show();
-            });
+    document.getElementById("closeShiftButton").addEventListener("click", function() {
+      fetch("shift_close.php")
+        .then(response => response.json())
+        .then(data => {
+          openingBalanceEl.textContent = data.opening_balance;
+          totalTransactionsEl.textContent = data.total_transactions;
+          expectedBalanceEl.textContent = data.expected_balance;
+          modal.show();
+        });
     });
 
     // Handle form submission
-    validateBalanceForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const actualClosingBalance = parseFloat(document.getElementById("closingBalance").value);
-        const expectedBalance = parseFloat(expectedBalanceEl.textContent);
+    validateBalanceForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const actualClosingBalance = parseFloat(document.getElementById("closingBalance").value);
+      const expectedBalance = parseFloat(expectedBalanceEl.textContent);
 
-        if (actualClosingBalance !== expectedBalance) {
-            balanceError.classList.remove("d-none");
-        } else {
-            balanceError.classList.add("d-none");
-            // Proceed to close the shift
-            fetch("shift_close.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    closingBalance: actualClosingBalance
-                })
-            }).then(response => {
-                if (response.ok) {
-                    modal.hide();
-                    alert("Shift closed successfully!");
-                    location.reload();
-                } else {
-                    alert("Failed to close shift. Please try again.");
-                }
-            });
-        }
+      if (actualClosingBalance !== expectedBalance) {
+        balanceError.classList.remove("d-none");
+      } else {
+        balanceError.classList.add("d-none");
+        // Proceed to close the shift
+        fetch("shift_close.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            closingBalance: actualClosingBalance
+          })
+        }).then(response => {
+          if (response.ok) {
+            modal.hide();
+            alert("Shift closed successfully!");
+            location.reload();
+          } else {
+            alert("Failed to close shift. Please try again.");
+          }
+        });
+      }
     });
-});
+  });
+</script>
+
+<!-- 5 transaksi terakhir -->
+<script>
+  document.querySelectorAll('.toggle-details').forEach(button => {
+    button.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const detailsRow = document.getElementById('details-' + id);
+      if (detailsRow.style.display === 'none' || detailsRow.style.display === '') {
+        detailsRow.style.display = 'table-row';
+      } else {
+        detailsRow.style.display = 'none';
+      }
+    });
+  });
 </script>
 </body>
 

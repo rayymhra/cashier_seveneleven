@@ -148,3 +148,24 @@ body {
   }
 
 }
+
+.card-header {
+  background-color: #007f61;
+  color: white;
+  border: white;
+  font-weight: 500;
+  font-size: 18px;
+  text-align: center;
+}
+
+.jumlah-card-dashboard {
+  font-weight: 600;
+  font-size: 24px;
+  text-align: center;
+}
+
+.shift-is-open {
+  color: #004f41;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
