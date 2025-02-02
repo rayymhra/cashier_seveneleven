@@ -57,20 +57,69 @@ $transactions = mysqli_query($conn, $query_table);
 // echo json_encode($data);
 
 if (isset($_GET['chart_data'])) {
-  // Prepare data for chart
-  $sql_transaksi_chart = "SELECT DATE(tanggal) as date, COUNT(*) as penjualan FROM transaksi GROUP BY DATE(tanggal)";
-  $result_transaksi_chart = mysqli_query($conn, $sql_transaksi_chart);
+  $type = $_GET['type'] ?? 'days';
 
+  if ($type === 'months') {
+    // monthly
+    $sql_transaksi_chart = "
+    SELECT 
+    date_series.date AS date, 
+    COALESCE(transaksi.penjualan, 0) AS penjualan 
+FROM (
+    SELECT DATE_FORMAT(DATE_SUB(NOW(), INTERVAL n MONTH), '%Y-%m') AS date
+    FROM (
+        SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
+        UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14
+        UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19
+        UNION ALL SELECT 20 UNION ALL SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24
+        UNION ALL SELECT 25 UNION ALL SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29
+    ) AS months
+) AS date_series
+LEFT JOIN (
+    SELECT 
+        DATE_FORMAT(MIN(tanggal), '%Y-%m') AS month, 
+        COUNT(*) AS penjualan
+    FROM transaksi 
+    WHERE tanggal >= DATE_SUB(NOW(), INTERVAL 30 MONTH) 
+    GROUP BY YEAR(tanggal), MONTH(tanggal)
+) AS transaksi 
+ON transaksi.month = date_series.date
+ORDER BY date_series.date;
+
+";
+  } elseif ($type === 'days') {
+    // daily
+    $sql_transaksi_chart = "
+    SELECT date_series.date AS date, 
+           COALESCE(COUNT(transaksi.tanggal), 0) AS penjualan 
+    FROM (
+        SELECT CURDATE() - INTERVAL (a.a + (10 * b.a) + (100 * c.a)) DAY AS date
+        FROM (SELECT 0 a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+              UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a
+        CROSS JOIN (SELECT 0 a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+                    UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
+        CROSS JOIN (SELECT 0 a UNION ALL SELECT 1 UNION ALL SELECT 2) c
+        WHERE CURDATE() - INTERVAL (a.a + (10 * b.a) + (100 * c.a)) DAY >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+    ) date_series
+    LEFT JOIN transaksi ON DATE(transaksi.tanggal) = date_series.date
+    GROUP BY date_series.date
+    ORDER BY date_series.date;
+";
+  }
+
+  $result_transaksi_chart = mysqli_query($conn, $sql_transaksi_chart);
   $data = [];
   while ($row = $result_transaksi_chart->fetch_assoc()) {
-      $data[] = $row;
+    $data[] = $row;
   }
 
   // Set appropriate headers for JSON response
   header('Content-Type: application/json');
   echo json_encode($data);
-  exit; // Ensure no further output is sent
+  exit;
 }
+
 
 ?>
 
@@ -78,7 +127,7 @@ if (isset($_GET['chart_data'])) {
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">  
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Seven Eleven Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -191,6 +240,24 @@ if (isset($_GET['chart_data'])) {
           </div>
         </div>
 
+
+
+        <!-- chart keuntungan -->
+        <div class="card mt-5">
+          <h3 class="mt-3 text-center">Grafik Penjualan 30 Hari</h3>
+          <div class="card-body">
+            <canvas id="chartDays"></canvas>
+          </div>
+        </div>
+
+        <div class="card mt-5">
+          <h3 class="mt-3 text-center">Grafik Penjualan 30 Bulan</h3>
+          <div class="card-body">
+            <canvas id="chartMonths"></canvas>
+          </div>
+        </div>
+
+
         <!-- 5 transaksi terakhir -->
         <div class="card mt-4">
           <div class="card-body">
@@ -208,9 +275,11 @@ if (isset($_GET['chart_data'])) {
                 </tr>
               </thead>
               <tbody>
-                <?php while ($transaction = mysqli_fetch_assoc($transactions)): ?>
+                <?php 
+                $no = 1;
+                while ($transaction = mysqli_fetch_assoc($transactions)): ?>
                   <tr>
-                    <td><?= $transaction['id'] ?></td>
+                    <td><?= $no++ ?></td>
                     <td><?= $transaction['tanggal'] ?></td>
                     <!-- <td><?= $transaction['user_id'] ?></td> -->
                     <td>Rp. <?= number_format($transaction['harga_total'], 0, ',', '.') ?></td>
@@ -247,18 +316,6 @@ if (isset($_GET['chart_data'])) {
             </table>
           </div>
         </div>
-
-        <!-- chart keuntungan -->
-        <div class="card mt-5">
-          <h3 class="mt-3 text-center">Grafik Penjualan</h3>
-          <div class="card-body">
-            <div class="chart">
-              <canvas id="myChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-
 
 
       </div> <!-- penutup container-->
