@@ -102,6 +102,9 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" href="../assets/style.css">
     <!-- sweetalert -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -113,7 +116,7 @@ if (isset($_POST['submit'])) {
                 <div class="row mb-3">
                     <div class="col-6 mb-3">
                         <label for="barang_id">Product</label>
-                        <select name="barang_id[]" class="form-select" required>
+                        <select name="barang_id[]" class="form-select product-select" required>
                             <option value="" disabled selected>Select Product</option>
                             <?php
                             $sqlBarang = $conn->query("SELECT id, nama, harga FROM barang WHERE stok > 0");
@@ -187,6 +190,23 @@ if (isset($_POST['submit'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- jQuery (Required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- select 2 script -->
+    <script>
+        $(document).ready(function() {
+            $('.product-select').select2({
+                placeholder: "Search for a product...",
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
