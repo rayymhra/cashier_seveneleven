@@ -34,7 +34,7 @@ $transactions = mysqli_query($conn, $query);
         <table id="transactionTable" class="table table-striped">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>No</th>
                     <th>Tanggal</th>
                     <th>Total</th>
                     <th>Bayar</th>
@@ -43,9 +43,11 @@ $transactions = mysqli_query($conn, $query);
                 </tr>
             </thead>
             <tbody>
-                <?php while ($transaction = mysqli_fetch_assoc($transactions)): ?>
+                <?php 
+                $no = 1;
+                while ($transaction = mysqli_fetch_assoc($transactions)): ?>
                     <tr>
-                        <td><?= $transaction['id'] ?></td>
+                        <td><?= $no++ ?></td>
                         <td><?= $transaction['tanggal'] ?></td>
                         <td>Rp. <?= number_format($transaction['harga_total'], 0, ',', '.') ?></td>
                         <td>Rp. <?= number_format($transaction['bayar'], 0, ',', '.') ?></td>

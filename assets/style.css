@@ -162,6 +162,10 @@ body {
   font-weight: 600;
   font-size: 24px;
   text-align: center;
+  
+  /* display: flex;
+  justify-content: center;
+  align-items: center; */
 }
 
 .shift-is-open {
@@ -177,6 +181,16 @@ body {
   margin: 0 auto;
 }
 
-.dashboard-kasir .card{
+.info-total-card{
   height: 160px;
+}
+
+.buka_shift-dashboard {
+  height: 160px;
+}
+
+.info-total-card .card-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

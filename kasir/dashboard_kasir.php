@@ -185,6 +185,7 @@ ORDER BY date_series.date;
       <h1 class="ms-3">Dashboard Kasir</h1>
       <div class="container dashboard-kasir">
         <div class="row">
+          
           <div class="col-4">
             <?php
             $kasir_id = $_SESSION['user_id'];
@@ -216,7 +217,7 @@ ORDER BY date_series.date;
             ?>
           </div>
           <div class="col-4">
-            <div class="card mt-3">
+            <div class="card info-total-card">
               <div class="card-header">
                 <div class="card-header">Jumlah Barang</div>
               </div>
@@ -227,7 +228,7 @@ ORDER BY date_series.date;
           </div>
 
           <div class="col-4">
-            <div class="card mt-3">
+            <div class="card info-total-card">
               <div class="card-header">
                 <div class="card-header">Jumlah Transaksi</div>
               </div>
@@ -300,9 +301,9 @@ ORDER BY date_series.date;
                         $details_result = mysqli_query($conn, $details_query);
                         while ($detail = mysqli_fetch_assoc($details_result)): ?>
                           <li>
-                            Barang ID: <?= $detail['barang_id'] ?><br>
-                            Produk: <?= $detail['barang_nama'] ?><br>
-                            Jumlah: <?= $detail['jumlah'] ?><br>
+                            Barang ID: <?= $detail['barang_id'] ?> - 
+                            Produk: <?= $detail['barang_nama'] ?> - 
+                            Jumlah: <?= $detail['jumlah'] ?> - 
                             Total: Rp <?= number_format($detail['harga_total'], 0, ',', '.') ?>
                           </li>
                         <?php endwhile; ?>

@@ -138,7 +138,7 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
 
-                    <div class="mb-3 col-6">
+                    <div class="mb-3 col-6 mt-4">
                         <button type="button" class="btn btn-success mb-4 remove-item">Remove</button>
                         <button type="button" id="add-item" class="btn btn-success mb-3">Add Item</button>
                     </div>
@@ -194,7 +194,7 @@ if (isset($_POST['submit'])) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Select2 JS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- select 2 script -->
     <script>
         $(document).ready(function() {
@@ -203,6 +203,15 @@ if (isset($_POST['submit'])) {
                 allowClear: true,
                 width: '100%'
             });
+        });
+
+
+        $(document).on('change', '.product-select', function() {
+            let harga = $(this).find('option:selected').data('harga');
+            let row = $(this).closest('.row');
+            row.find('.harga_total_text').text('Rp ' + new Intl.NumberFormat('id-ID').format(harga));
+            row.find('.harga_total_input').val(harga);
+            updateTotal();
         });
     </script>
 
@@ -238,10 +247,19 @@ if (isset($_POST['submit'])) {
                 newItem.querySelector('.harga_total_input').value = ''; // Reset price hidden input
 
                 container.appendChild(newItem);
+
+                // Reinitialize Select2 for the new select element
+                $(newItem).find('.product-select').select2({
+                    placeholder: "Search for a product...",
+                    allowClear: true,
+                    width: '100%'
+                });
+
                 updateTotal(); // Update total when new item is added
                 checkRemoveButton(); // Check the remove button status
             }
         });
+
 
 
 
