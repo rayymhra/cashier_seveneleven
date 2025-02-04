@@ -176,3 +176,7 @@ body {
   padding: 50px;
   margin: 0 auto;
 }
+
+.dashboard-kasir .card{
+  height: 160px;
+}

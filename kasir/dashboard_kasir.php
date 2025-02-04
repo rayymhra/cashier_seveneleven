@@ -183,12 +183,10 @@ ORDER BY date_series.date;
     } else {
     ?>
       <h1 class="ms-3">Dashboard Kasir</h1>
-      <div class="container">
-        <!-- total barang yg ada -->
+      <div class="container dashboard-kasir">
         <div class="row">
           <div class="col-4">
             <?php
-            // Removed the extra session_start() call here.
             $kasir_id = $_SESSION['user_id'];
 
             // Check shift status
@@ -275,7 +273,7 @@ ORDER BY date_series.date;
                 </tr>
               </thead>
               <tbody>
-                <?php 
+                <?php
                 $no = 1;
                 while ($transaction = mysqli_fetch_assoc($transactions)): ?>
                   <tr>
